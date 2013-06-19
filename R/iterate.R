@@ -5,12 +5,14 @@ filename <- args[1]
 
 k <- args[2]
 l <- args[3]
-i.max <- args[4]
-rep <- args[5]
+i <- args[4]
+r <- args[5]
 
 source('lib.R')
-A <- read.pop(args[1])
+A <- read.pop(filename)
 A.svd <- svd(A)
 
-T.svds <- fastPCA.iterate(A, l, i.max, k)
-SVDs2FOMs(A.svd, T.svds)
+A.T.svds <- fastPCA.iterate(A, i, k, l)
+write.table(
+  replicate(r, { SVDs2FOMs(A.svd, fastPCA.iterate(A, i, k, l) }), 
+            row.names=F, col.names=F, sep="\t")
