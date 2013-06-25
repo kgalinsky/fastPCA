@@ -105,6 +105,13 @@ fastPCA.blanczos <- function (A, i=50, k=10, l=20, G) {
   return( calc.T.svd.mod( do.call(rbind, calc.R.blanczos(G, A, i)), A, k ) )
 }
 
+fastPCA.blanczos.iterate <- function (A, i=50, k=10, l=20, G) {
+  if (missing(G)) { G <- rG(A, l) }
+  R <- calc.R.blanczos(G, A, i)
+  return( lapply( seq(1, i+1),
+                  function(j) { calc.T.svd.mod(do.call(rbind, R[1:j]), A, k) } ) )
+}
+
 FOM.KG <- function (A.svd, T.svd) {
   k <- length(T.svd$d)
   prod(sqrt(rowSums(crossprod(A.svd$u[,1:k], T.svd$u)^2)))

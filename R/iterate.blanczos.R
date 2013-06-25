@@ -13,5 +13,5 @@ A <- read.geno(filename)
 A.svd <- svd(A)
 
 write.table(
-  replicate(r, { SVDs2FOMs(A.svd, fastPCA.iterate(A, i, k, l))}),
+  replicate(r, { SVDs2FOMs(A.svd, fastPCA.blanczos.iterate(A, i, k, l))}),
             row.names=F, col.names=F, sep="\t")
