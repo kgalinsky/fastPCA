@@ -31,7 +31,7 @@ sub random_pop {
             [
                 $p,
                 map { random_pop( random_beta( 1, $aa, $bb ), $struct->[$_] ) }
-                  ( 1, 2 )
+                  ( 1 .. $#$struct )
             ]
         );
     }
@@ -46,9 +46,9 @@ sub p_str {
         return ( $out->[0] );
     }
     else {
-        return (
-            sprintf( '%s(%s,%s)', $out->[0], map { p_str($_) } @$out[ 1, 2 ] )
-        );
+        return ($out->[0] . '('
+              . join( ',', map { p_str($_) } @$out[ 1 .. $#$out ] )
+              . ')' );
     }
 }
 
@@ -58,7 +58,7 @@ sub pop_str {
         return ( join( '', @{ $out->[1] } ) );
     }
     else {
-        return ( join( '', map { pop_str($_) } @$out[ 1, 2 ] ) );
+        return ( join( '', map { pop_str($_) } @$out[ 1 .. $#$out ] ) );
     }
 }
 
