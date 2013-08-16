@@ -20,10 +20,18 @@ rnorm.matrix <- function (m, n, ...) {
   matrix(rnorm(m*n, ...), m, n)  
 }
 
+rbinom.matrix <- function (m, n, ...) {
+  matrix(rbinom(m*n, ...), m, n)
+}
+
 rG <- function (A, l) { rnorm.matrix(l, dim(A)[1]) }
 
-rgeno <- function(n, p) {
+rsnp <- function(n, p) {
   rbinom(n, 2, p)
+}
+
+rpop <- function(m, n) {
+  t(replicate(m, rsnp(n, runif(1)), simplify=T))
 }
 
 calc.R <- function (G, A, i) {
@@ -113,7 +121,7 @@ fastPCA.blanczos.iterate <- function (A, i=50, k=10, l=20, G) {
 }
 
 FOM.KG <- function (A.svd, T.svd) {
-  k <- length(T.svd$d)
+  k <- dim(T.svd$u)[2]
   prod(sqrt(rowSums(crossprod(A.svd$u[,1:k], T.svd$u)^2)))
 }
 
