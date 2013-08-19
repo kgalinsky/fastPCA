@@ -1,42 +1,47 @@
+library('RColorBrewer')
 source('lib.R')
 
-M <- 1000
-N <- 100
-K <- 1
-L <- 10
-I <- 10
+plot.traces <- function (X, X.svd, K, Ls, I, R=5) {
+  if (missing(X.svd)) { X.svd <- svd(X) }
 
-#X <- rpop(M, N)
-X <- rnorm.matrix(M, N)
-X.svd <- svd(t(X))
-
-Ls <- c( 2, 3, 5, 10 )
-legend <- sapply(Ls, function (L) { sprintf("L = %d", L) })
-cols <- c( 'red', 'green', 'blue', 'purple' )
-
-plot( c(), xlim=c(0,10), ylim=c(0,1), xlab='i', ylab='FoM' )
-legend('bottomright', legend=legend, lw=1, col=colors)
-
-for (i in 1:4) {
-  L <- Ls[i]
-  col <- cols[i]
-  for (j in 1:5) {
-    G <- rnorm.matrix(N, L)
-    
-    H <- list()
-    H[[1]] <- X %*% G
-    for (i in 1:I) {
-      H[[i+1]] <- X %*% crossprod(X, H[[i]])
+  pal=brewer.pal(n=8, 'Dark2')
+  
+  plot(c(),
+       xlim=c(0, I), xlab='I',
+       ylim=c(0, 1), ylab='FOM'
+  )
+  abline(h=.99, lty=2)
+  abline(h=.95, lty=3)
+  
+  leg <- sapply(Ls, function (L) { sprintf("L=%d", L) })
+  legend('bottomright', legend=leg, lt=1, col=pal)
+  
+  Is <- seq(0, I)
+  
+  for (l in 1:length(Ls)) {
+    L <- Ls[l]
+    for (r in 1:R) {
+      Ts.svd <- fastPCA.blanczos.iterate(X, i=I, l=L, k=K)
+      Ts.FOM <- sapply(Ts.svd, function (T.svd) { FOM.KG(X.svd, T.svd) })
+      lines(is, Ts.FOM, col=pal[l])      
     }
-    
-    H.svd <- lapply(seq(1, I+1), function (i) {svd(do.call(cbind, H[1:i]))})
-    T     <- lapply(H.svd, function (h.svd) { crossprod(X, h.svd$u) })
-    T.svd <- lapply(T, function (x) { svd(x, k, nu=K) })
-    
-    lines( 
-      seq(0, 10),
-      sapply(T.svd, function(x) { FOM.KG(X.svd, x) }),
-      col=col,
-    )
   }
 }
+
+lines.trace <- function(A, col='red', ...) {
+  Ts.svd <- fastPCA.blanczos.iterate(X, ...)
+  Ts.FOM <- sapply(Ts.svd, function (T.svd) { FOM.KG(X.svd, T.svd) })
+  lines(is, Ts.FOM, col=col) 
+}
+
+#X <- rpop(M, N)
+X.10k.1k <- rnorm.matrix(1000, 10000)
+X.10k.1k.svd <- svd(X)
+
+
+plot.traces(X.10k.1k, X.10k.1k.svd, Ls=c(2,3,5,10), K=1, I=10, R=3)
+
+X.5k.1k <- rnorm.matrix(1000, 5000)
+X.5k.1k.svd <- svd(X.5k.1k)
+
+plot.traces(X.5k.1k, X.5k.1k.svd, Ls=c(2,3,5,10), K=1, I=10, R=3)
