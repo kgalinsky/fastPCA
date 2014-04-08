@@ -31,7 +31,7 @@ rsnp <- function(n, p) {
 }
 
 rpop <- function(m, n) {
-  t(replicate(m, rsnp(n, runif(1)), simplify=T))
+  replicate(n, rsnp(m, runif(1)), simplify=T)
 }
 
 calc.R <- function (G, A, i) {
@@ -71,8 +71,8 @@ calc.T.svd.mod <- function (R, A, k) {
   
   Tp.svd <- svd(T)
   
-  T.svd <- list(u=Tp.svd$u[,1:k], d=Tp.svd$d[1:k])
-  T.svd$v <- (Q %*% Tp.svd$v)[,1:k]
+  T.svd <- list( u=matrix(Tp.svd$u[,1:k], ncol=k), d=Tp.svd$d[1:k] )
+  T.svd$v <- matrix((Q %*% Tp.svd$v)[,1:k], ncol=k)
   
   return (T.svd)
 }
