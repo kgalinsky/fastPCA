@@ -15,15 +15,15 @@
 #include "kjg_gsl.h"
 
 void kjg_matrix_fprintf(FILE* stream, gsl_matrix* m, const char* template) {
-	size_t i, j;
-	for (i = 0; i < m->size1; i++) {
-		fprintf(stream, template, gsl_matrix_get(m, i, 0));
-		for (j = 1; j < m->size2; j++) {
-			fprintf(stream, "\t");
-			fprintf(stream, template, gsl_matrix_get(m, i, j));
-		}
-		fprintf(stream, "\n");
-	}
+    size_t i, j;
+    for (i = 0; i < m->size1; i++) {
+        fprintf(stream, template, gsl_matrix_get(m, i, 0));
+        for (j = 1; j < m->size2; j++) {
+            fprintf(stream, "\t");
+            fprintf(stream, template, gsl_matrix_get(m, i, j));
+        }
+        fprintf(stream, "\n");
+    }
 }
 
 gsl_rng *kjg_rng_init() {
@@ -42,105 +42,105 @@ gsl_rng *kjg_rng_init() {
 }
 
 int kjg_frobenius_normalize(gsl_matrix* m) {
-	double s = kjg_frobenius_norm(m);
-	double d = m->size1 * m->size2;
-	return (gsl_matrix_scale(m, d / s));
+    double s = kjg_frobenius_norm(m);
+    double d = m->size1 * m->size2;
+    return (gsl_matrix_scale(m, d / s));
 }
 
 float kjg_frobenius_norm(const gsl_matrix* m) {
-	size_t i, j;
-	double sumsq = 0;
-	for (i = 0; i < m->size1; i++) {
-		for (j = 0; j < m->size2; j++) {
-			double mij = gsl_matrix_get(m, i, j);
-			sumsq += mij * mij;
-		}
-	}
-	return (sqrt(sumsq));
+    size_t i, j;
+    double sumsq = 0;
+    for (i = 0; i < m->size1; i++) {
+        for (j = 0; j < m->size2; j++) {
+            double mij = gsl_matrix_get(m, i, j);
+            sumsq += mij * mij;
+        }
+    }
+    return (sqrt(sumsq));
 }
 
 void kjg_matrix_set_ran_ugaussian(gsl_matrix* m, const gsl_rng* r) {
-	size_t i, j;
-	for (i = 0; i < m->size1; i++) {
-		for (j = 0; j < m->size2; j++) {
-			gsl_matrix_set(m, i, j, gsl_ran_ugaussian(r));
-		}
-	}
+    size_t i, j;
+    for (i = 0; i < m->size1; i++) {
+        for (j = 0; j < m->size2; j++) {
+            gsl_matrix_set(m, i, j, gsl_ran_ugaussian(r));
+        }
+    }
 }
 
 void kjg_blanczos(const kjg_geno* X, const double* M, uint8_t* x, double* y, gsl_matrix* H,
-		gsl_matrix* G1, gsl_matrix* G2) {
-	gsl_matrix* Gswap;
-	gsl_matrix_view Hsub;
-	size_t i, j;
-	for (i = 0; i < H->size2; i += G1->size2) {
-		Hsub = gsl_matrix_submatrix(H, 0, i, H->size1, G1->size2);
-		kjg_XTXG(X, M, x, y, &Hsub.matrix, G1, G2);
-		kjg_frobenius_normalize(&Hsub.matrix);
-		Gswap = G2;
-		G2 = G1;
-		G1 = Gswap;
-	}
+        gsl_matrix* G1, gsl_matrix* G2) {
+    gsl_matrix* Gswap;
+    gsl_matrix_view Hsub;
+    size_t i, j;
+    for (i = 0; i < H->size2; i += G1->size2) {
+        Hsub = gsl_matrix_submatrix(H, 0, i, H->size1, G1->size2);
+        kjg_XTXG(X, M, x, y, &Hsub.matrix, G1, G2);
+        kjg_frobenius_normalize(&Hsub.matrix);
+        Gswap = G2;
+        G2 = G1;
+        G1 = Gswap;
+    }
 }
 
 void kjg_XTXG(const kjg_geno *X, const double* M, uint8_t *x, double *y, gsl_matrix *H,
-		const gsl_matrix *G1, gsl_matrix *G2) {
-	gsl_vector_view Hrow;
-	gsl_vector_view Xrow = gsl_vector_view_array(y, X->n);
+        const gsl_matrix *G1, gsl_matrix *G2) {
+    gsl_vector_view Hrow;
+    gsl_vector_view Xrow = gsl_vector_view_array(y, X->n);
 
     gsl_matrix_set_zero(H);
     gsl_matrix_set_zero(G2);
 
-	size_t i;
-	for (i = 0; i < X->m; i++) {
-		kjg_geno_get_row(x, X, i);
-		kjg_geno_normalize_m(M[i], x, y, X->n);
-		Hrow = gsl_matrix_row(H, i);
+    size_t i;
+    for (i = 0; i < X->m; i++) {
+        kjg_geno_get_row(x, X, i);
+        kjg_geno_normalize_m(M[i], x, y, X->n);
+        Hrow = gsl_matrix_row(H, i);
         gsl_blas_dgemv(CblasTrans, 1, G1, &Xrow.vector, 0, &Hrow.vector);
         gsl_blas_dger (1, &Xrow.vector, &Hrow.vector, G2);
-	}
+    }
 }
 
 void kjg_XG(const kjg_geno *X, const double *M, uint8_t *x, double *y, gsl_matrix *H,
-		const gsl_matrix *G) {
-	gsl_vector_view Hrow;
-	gsl_vector_view Xrow = gsl_vector_view_array(y, X->n);
+        const gsl_matrix *G) {
+    gsl_vector_view Hrow;
+    gsl_vector_view Xrow = gsl_vector_view_array(y, X->n);
 
     gsl_matrix_set_zero(H);
 
-	size_t i;
-	for (i = 0; i < X->m; i++) {
-		kjg_geno_get_row(x, X, i);
-		kjg_geno_normalize_m(M[i], x, y, X->n);
-		Hrow = gsl_matrix_row(H, i);
+    size_t i;
+    for (i = 0; i < X->m; i++) {
+        kjg_geno_get_row(x, X, i);
+        kjg_geno_normalize_m(M[i], x, y, X->n);
+        Hrow = gsl_matrix_row(H, i);
         gsl_blas_dgemv(CblasTrans, 1, G, &Xrow.vector, 0, &Hrow.vector);
-	}
+    }
 }
 
 void kjg_XTH(const kjg_geno *X, const double *M, uint8_t *x, double *y, const gsl_matrix *H,
-		gsl_matrix *G) {
-	gsl_vector_view Xrow = gsl_vector_view_array(y, X->n);
+        gsl_matrix *G) {
+    gsl_vector_view Xrow = gsl_vector_view_array(y, X->n);
 
     gsl_matrix_set_zero(G);
 
-	size_t i;
-	for (i = 0; i < X->m; i++) {
-		kjg_geno_get_row(x, X, i);
-		kjg_geno_normalize_m(M[i], x, y, X->n);
-		gsl_vector_const_view Hrow = gsl_matrix_const_row(H, i);
+    size_t i;
+    for (i = 0; i < X->m; i++) {
+        kjg_geno_get_row(x, X, i);
+        kjg_geno_normalize_m(M[i], x, y, X->n);
+        gsl_vector_const_view Hrow = gsl_matrix_const_row(H, i);
         gsl_blas_dger (1, &Xrow.vector, &Hrow.vector, G);
-	}
+    }
 }
 
 void kjg_evec_fprintf(FILE* stream, gsl_vector* eval, gsl_matrix* evec,
-		const char* template) {
-	size_t i, j;
-	fprintf(stream, "#");
-	fprintf(stream, template, gsl_vector_get(eval, 0));
-	for (i = 1; i < eval->size; i++) {
-		fprintf(stream, "\t");
-		fprintf(stream, template, gsl_vector_get(eval, i));
-	}
-	fprintf(stream, "\n");
-	kjg_matrix_fprintf(stream, evec, template);
+        const char* template) {
+    size_t i, j;
+    fprintf(stream, "#");
+    fprintf(stream, template, gsl_vector_get(eval, 0));
+    for (i = 1; i < eval->size; i++) {
+        fprintf(stream, "\t");
+        fprintf(stream, template, gsl_vector_get(eval, i));
+    }
+    fprintf(stream, "\n");
+    kjg_matrix_fprintf(stream, evec, template);
 }

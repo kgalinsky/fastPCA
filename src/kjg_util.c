@@ -12,13 +12,13 @@
 #include "kjg_util.h"
 
 FILE* kjg_fopen_suffix (const char* prefix, const char* suffix, const char* opentype) {
-	char *filename = malloc(sizeof(char) * (strlen(prefix) + strlen(suffix) + 1));
+    char *filename = malloc(sizeof(char) * (strlen(prefix) + strlen(suffix) + 1));
 
-	strcpy(filename, prefix);
-	strcat(filename, ".");
-	strcat(filename, suffix);
+    strcpy(filename, prefix);
+    strcat(filename, ".");
+    strcat(filename, suffix);
 
-	FILE* fh = fopen(filename, opentype);
-	free(filename);
-	return(fh);
+    FILE* fh = fopen(filename, opentype);
+    free(filename);
+    return(fh);
 }

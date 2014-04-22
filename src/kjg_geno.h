@@ -12,10 +12,10 @@
 #include <stdint.h>
 
 typedef struct {
-	size_t m;
-	size_t n;
-	size_t tda;
-	uint8_t *data;
+    size_t m;
+    size_t n;
+    size_t tda;
+    uint8_t *data;
 } kjg_geno;
 
 /**
@@ -47,7 +47,7 @@ int kjg_geno_normalize(const uint8_t *x, double *y, const size_t n);
  * @return success or failure (-1)
  */
 int kjg_geno_normalize_m(const double m, const uint8_t* x, double* y,
-		const size_t n);
+        const size_t n);
 
 /**
  * Remap genotypes values to doubles.
@@ -59,7 +59,7 @@ int kjg_geno_normalize_m(const double m, const uint8_t* x, double* y,
  * @return success (0) or zero-good genos (1)
  */
 void kjg_geno_remap(const double s[4], const uint8_t* x, double* y,
-		const size_t n);
+        const size_t n);
 
 /**
  * Compute the normalization lookup array.

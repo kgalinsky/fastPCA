@@ -83,15 +83,15 @@ float kjg_frobenius_norm(const gsl_matrix* m);
  */
 
 void kjg_blanczos(const kjg_geno* X, const double *M, uint8_t* x, double* y, gsl_matrix* H,
-		gsl_matrix* G1, gsl_matrix* G2);
+        gsl_matrix* G1, gsl_matrix* G2);
 
 void kjg_XTXG(const kjg_geno *X, const double *M, uint8_t *x, double *y, gsl_matrix *H,
-		const gsl_matrix *G1, gsl_matrix *G2);
+        const gsl_matrix *G1, gsl_matrix *G2);
 
 void kjg_XG(const kjg_geno *X, const double *M, uint8_t *x, double *y, gsl_matrix *H,
-		const gsl_matrix *G);
+        const gsl_matrix *G);
 
 void kjg_XTH(const kjg_geno *X, const double *M, uint8_t *x, double *y, const gsl_matrix *H,
-		gsl_matrix *G);
+        gsl_matrix *G);
 
 #endif /* KJG_GSL_H_ */
