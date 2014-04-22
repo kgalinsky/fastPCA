@@ -86,7 +86,7 @@ int main (int argc, char **argv) {
     gsl_vector_free(work1);
 
     // STEP 3 - O(MN(I+1)L)
-    kjg_XTH(X, M, x, y, Q, T);
+    kjg_XTH(X, M, Q, T);
     kjg_geno_free(X);
 
     // STEP 4 - final SVD

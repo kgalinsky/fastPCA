@@ -99,7 +99,16 @@ void kjg_XTXG(const kjg_geno *X, const double *M, const gsl_matrix *G1,
 void kjg_XG(const kjg_geno *X, const double *M, uint8_t *x, double *y, gsl_matrix *H,
         const gsl_matrix *G);
 
-void kjg_XTH(const kjg_geno *X, const double *M, uint8_t *x, double *y, const gsl_matrix *H,
+/**
+ * Multiply G = XT*H
+ *
+ * @param *X compressed genotype matrix
+ * @param *M array of SNP means
+ * @param *H some matrix
+ * @param *G another matrix
+ */
+
+void kjg_XTH(const kjg_geno *X, const double *M, const gsl_matrix *H,
         gsl_matrix *G);
 
 #endif /* KJG_GSL_H_ */

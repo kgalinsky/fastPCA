@@ -124,13 +124,16 @@ void kjg_XG(const kjg_geno *X, const double *M, uint8_t *x, double *y, gsl_matri
     }
 }
 
-void kjg_XTH(const kjg_geno *X, const double *M, uint8_t *x, double *y, const gsl_matrix *H,
+void kjg_XTH(const kjg_geno *X, const double *M, const gsl_matrix *H,
         gsl_matrix *G) {
+    size_t i;                                   // row index
+    uint8_t *x  = malloc(sizeof(uint8_t)*X->n); // genotypes
+    double *y   = malloc(sizeof(double)*X->n);  // normalized
+
     gsl_vector_view Xrow = gsl_vector_view_array(y, X->n);
 
     gsl_matrix_set_zero(G);
 
-    size_t i;
     for (i = 0; i < X->m; i++) {
         kjg_geno_get_row(x, X, i);
         kjg_geno_normalize_m(M[i], x, y, X->n);
