@@ -71,7 +71,7 @@ int main (int argc, char **argv) {
     // fclose(fh_G);
 
     // STEP 1B - compute H - O(MN(I+1)L)
-    kjg_geno_row_means(X, M, x);
+    kjg_geno_row_means(X, M);
     kjg_blanczos(X, M, x, y, H, G1, G2);
     // kjg_matrix_fprintf(fh_H, H, "%g");
     // fclose(fh_H);

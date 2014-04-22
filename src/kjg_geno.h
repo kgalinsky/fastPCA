@@ -162,6 +162,13 @@ void kjg_geno_set_row(const uint8_t* x, kjg_geno* g, const size_t i);
 
 void kjg_geno_get_row(uint8_t* x, const kjg_geno* g, const size_t i);
 
-void kjg_geno_row_means(const kjg_geno* g, double* M, uint8_t* x);
+/**
+ * Compute the mean genotype of all SNPs in the geno object
+ *
+ * @param *g geno object
+ * @param *M array to store means
+ */
+
+void kjg_geno_row_means(const kjg_geno* g, double* M);
 
 #endif /* KJG_GENO_H_ */

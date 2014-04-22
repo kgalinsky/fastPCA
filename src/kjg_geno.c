@@ -185,8 +185,10 @@ void kjg_geno_get_row(uint8_t* x, const kjg_geno* g, const size_t i) {
 void kjg_geno_set_row(const uint8_t* x, kjg_geno* g, const size_t i) {
     kjg_geno_pack(x, g->data + (g->tda * i), g->n);
 }
-void kjg_geno_row_means(const kjg_geno* g, double* M, uint8_t* x) {
+void kjg_geno_row_means(const kjg_geno* g, double* M) {
     size_t i;
+    uint8_t *x = malloc(sizeof(uint8_t)*g->n);
+
     for (i = 0; i < g->m; i++) {
         kjg_geno_get_row(x, g, i);
         M[i] = kjg_geno_mean(x, g->n);
