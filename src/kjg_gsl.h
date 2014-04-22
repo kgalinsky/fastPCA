@@ -96,8 +96,17 @@ void kjg_blanczos(const kjg_geno* X, const double *M, gsl_matrix* H,
 void kjg_XTXG(const kjg_geno *X, const double *M, const gsl_matrix *G1,
         gsl_matrix *H, gsl_matrix *G2);
 
-void kjg_XG(const kjg_geno *X, const double *M, uint8_t *x, double *y, gsl_matrix *H,
-        const gsl_matrix *G);
+/**
+ * Multiply H = X*G
+ *
+ * @param *X compressed genotype matrix
+ * @param *M array of SNP means
+ * @param *G some matrix
+ * @param *H another matrix
+ */
+
+void kjg_XG(const kjg_geno *X, const double *M, const gsl_matrix *G,
+        gsl_matrix *H);
 
 /**
  * Multiply G = XT*H
