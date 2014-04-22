@@ -40,8 +40,6 @@ int main (int argc, char **argv) {
     size_t m = kjg_genoIO_num_snp(fh_geno, n);
 
     kjg_geno *X  = kjg_geno_alloc(m, n);
-    uint8_t *x   = malloc(sizeof(uint8_t)*n);
-    double *y    = malloc(sizeof(double)*n);
     double *M    = malloc(sizeof(double)*m);
 
     gsl_rng *r    = kjg_rng_init();
