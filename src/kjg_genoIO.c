@@ -64,10 +64,16 @@ size_t kjg_genoIO_fread(char* buffer, uint8_t* x, const size_t n, FILE* stream) 
     return (r);
 }
 
-void kjg_genoIO_fread_geno(char* buffer, uint8_t* x, kjg_geno* g, FILE* stream) {
+void kjg_genoIO_fread_geno(kjg_geno* g, FILE* stream) {
+    char *buffer = malloc(sizeof(char)*(g->n+1));
+    uint8_t *x   = malloc(sizeof(uint8_t)*g->n);
+
     size_t i;
     for (i = 0; i < g->m; i++) {
         kjg_genoIO_fread(buffer, x, g->n, stream);
         kjg_geno_set_row(x, g, i);
     }
+
+    free(buffer);
+    free(x);
 }

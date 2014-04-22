@@ -42,7 +42,6 @@ int main (int argc, char **argv) {
     size_t m = kjg_genoIO_num_snp(fh_geno, n);
 
     kjg_geno *X  = kjg_geno_alloc(m, n);
-    char *buffer = malloc(sizeof(char)*(n+1));
     uint8_t *x   = malloc(sizeof(uint8_t)*n);
     double *y    = malloc(sizeof(double)*n);
     double *M    = malloc(sizeof(double)*m);
@@ -63,9 +62,8 @@ int main (int argc, char **argv) {
     gsl_vector *work2;
 
     // PREP - read genotype file into memory
-    kjg_genoIO_fread_geno(buffer, x, X, fh_geno);
+    kjg_genoIO_fread_geno(X, fh_geno);
     fclose(fh_geno);
-    free(buffer);
 
     // STEP 1A - generate G - O(NL)
     kjg_matrix_set_ran_ugaussian(G1, r);

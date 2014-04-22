@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 double kjg_geno_mean(const uint8_t *x, const size_t n) {
-    size_t i;           // iterator
+    size_t i;           // index
     size_t m = 0;       // good genotypes
     unsigned int t = 0; // sum of genotypes
 
@@ -34,22 +34,21 @@ double kjg_geno_mean(const uint8_t *x, const size_t n) {
 }
 
 int kjg_geno_normalization_lookup(const double m, double s[4]) {
-    double p = m / 2;
-    double q = 1 - p;
-    size_t i;
+    size_t i;           // index
 
     s[3] = 0;
 
-    if (p == 0 || q == 0) { // check for division by zero
-
+    if (m == 0 || m == 2) { // check for homogeneous population
         for (i=0; i<3; i++) {
             s[i] = 0; // zero out scaling array
         }
-
         return(1); // error
     }
 
-    double d = sqrt(2 * p * q); // variance for Binomial(2, p) = 2pq
+    double p = m/2;         // G ~ Binomial(2, p)
+    double q = 1-p;
+    double d = sqrt(2*p*q); // Var(G) = 2pq
+
     for (i = 0; i < 3; i++) {
         s[i] = (i - m) / d;
     }

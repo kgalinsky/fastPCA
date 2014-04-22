@@ -11,6 +11,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "kjg_geno.h"
 
@@ -54,12 +55,10 @@ size_t kjg_genoIO_fread(char* buffer, uint8_t* x, const size_t n, FILE* stream);
 /**
  * Read geno file into struct
  *
- * @param *buffer character buffer to store lines
- * @param *x integer buffer to store unpacked genotypes
  * @param *g pre-allocated geno struct
  * @param *stream genotype file object
  */
 
-void kjg_genoIO_fread_geno(char* buffer, uint8_t* x, kjg_geno* g, FILE* stream);
+void kjg_genoIO_fread_geno(kjg_geno* g, FILE* stream);
 
 #endif /* KJG_GENOIO_H_ */
