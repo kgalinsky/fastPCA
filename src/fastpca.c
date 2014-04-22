@@ -45,17 +45,6 @@ int main (int argc, char **argv) {
     gsl_rng *r    = kjg_rng_init();
     gsl_matrix *G  = gsl_matrix_alloc(n, L);
     gsl_matrix *H  = gsl_matrix_alloc(m, (I+1)*L);
-    gsl_matrix *X1 = gsl_matrix_alloc(H->size2, H->size2);
-    gsl_matrix *V1 = gsl_matrix_alloc(H->size2, H->size2);
-    gsl_vector *S1 = gsl_vector_alloc(H->size2);
-    gsl_vector *work1 = gsl_vector_alloc(H->size2);
-    gsl_matrix *Q  = H; // for clarity
-    gsl_matrix *T  = gsl_matrix_alloc(n, H->size2);
-    gsl_matrix *X2 = gsl_matrix_alloc(T->size2, T->size2);
-    gsl_matrix *W  = gsl_matrix_alloc(T->size2, T->size2);
-    gsl_vector *S2 = gsl_vector_alloc(T->size2);
-    gsl_vector *work2 = gsl_vector_alloc(T->size2);
-    gsl_matrix *V2 = T; // for clarity
 
     FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
 
@@ -75,6 +64,10 @@ int main (int argc, char **argv) {
     // fclose(fh_H);
 
     // STEP 2 - supposed to be pivoted QR, but can't figure it out - O(M[(I+1)L)]^2)
+    gsl_matrix *X1 = gsl_matrix_alloc(H->size2, H->size2);
+    gsl_matrix *V1 = gsl_matrix_alloc(H->size2, H->size2);
+    gsl_vector *S1 = gsl_vector_alloc(H->size2);
+    gsl_vector *work1 = gsl_vector_alloc(H->size2);
     gsl_linalg_SV_decomp_mod(H, X1, V1, S1, work1);
     gsl_matrix_free(X1);
     gsl_matrix_free(V1);
@@ -82,16 +75,23 @@ int main (int argc, char **argv) {
     gsl_vector_free(work1);
 
     // STEP 3 - O(MN(I+1)L)
+    gsl_matrix *Q  = H; // for clarity
+    gsl_matrix *T  = gsl_matrix_alloc(n, H->size2);
     kjg_XTH(X, M, Q, T);
     kjg_geno_free(X);
     free(M);
 
     // STEP 4 - final SVD
+    gsl_matrix *X2 = gsl_matrix_alloc(T->size2, T->size2);
+    gsl_matrix *W  = gsl_matrix_alloc(T->size2, T->size2);
+    gsl_vector *S2 = gsl_vector_alloc(T->size2);
+    gsl_vector *work2 = gsl_vector_alloc(T->size2);
     gsl_linalg_SV_decomp_mod(T, X2, W, S2, work2);
     gsl_matrix_free(X2);
     gsl_vector_free(work2);
     gsl_matrix_free(W);
 
+    gsl_matrix *V2 = T; // for clarity
     gsl_matrix_view V = gsl_matrix_submatrix(V2, 0, 0, V2->size1, K);
     gsl_vector_view S = gsl_vector_subvector(S2, 0, K);
     gsl_vector_mul(&S.vector, &S.vector);
