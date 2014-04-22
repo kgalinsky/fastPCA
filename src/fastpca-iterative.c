@@ -96,6 +96,7 @@ int main (int argc, char **argv) {
         // STEP 3 - O(MN(I+1)L)
         T  = gsl_matrix_alloc(n, Qv.matrix.size2);
         kjg_XTH(X, M, &Qv.matrix, T);
+        free(M);
 
         // STEP 4 - final SVD
         X2 = gsl_matrix_alloc(T->size2, T->size2);

@@ -193,4 +193,6 @@ void kjg_geno_row_means(const kjg_geno* g, double* M) {
         kjg_geno_get_row(x, g, i);
         M[i] = kjg_geno_mean(x, g->n);
     }
+
+    free(x);
 }

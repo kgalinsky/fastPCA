@@ -84,6 +84,7 @@ int main (int argc, char **argv) {
     // STEP 3 - O(MN(I+1)L)
     kjg_XTH(X, M, Q, T);
     kjg_geno_free(X);
+    free(M);
 
     // STEP 4 - final SVD
     gsl_linalg_SV_decomp_mod(T, X2, W, S2, work2);

@@ -110,6 +110,9 @@ void kjg_XTXG(
         gsl_blas_dgemv(CblasTrans, 1, G1, &Xrow.vector, 0, &Hrow.vector);
         gsl_blas_dger (1, &Xrow.vector, &Hrow.vector, G2);
     }
+
+    free(x);
+    free(y);
 }
 
 void kjg_XG(const kjg_geno *X, const double *M, const gsl_matrix *G,
@@ -129,6 +132,9 @@ void kjg_XG(const kjg_geno *X, const double *M, const gsl_matrix *G,
         Hrow = gsl_matrix_row(H, i);
         gsl_blas_dgemv(CblasTrans, 1, G, &Xrow.vector, 0, &Hrow.vector);
     }
+
+    free(x);
+    free(y);
 }
 
 void kjg_XTH(const kjg_geno *X, const double *M, const gsl_matrix *H,
@@ -147,6 +153,9 @@ void kjg_XTH(const kjg_geno *X, const double *M, const gsl_matrix *H,
         gsl_vector_const_view Hrow = gsl_matrix_const_row(H, i);
         gsl_blas_dger (1, &Xrow.vector, &Hrow.vector, G);
     }
+
+    free(x);
+    free(y);
 }
 
 void kjg_evec_fprintf(FILE* stream, gsl_vector* eval, gsl_matrix* evec,
