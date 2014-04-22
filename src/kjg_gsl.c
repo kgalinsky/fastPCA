@@ -68,30 +68,37 @@ void kjg_matrix_set_ran_ugaussian(gsl_matrix* m, const gsl_rng* r) {
     }
 }
 
-void kjg_blanczos(const kjg_geno* X, const double* M, uint8_t* x, double* y, gsl_matrix* H,
-        gsl_matrix* G1, gsl_matrix* G2) {
+void kjg_blanczos(
+        const kjg_geno* X, const double* M,
+        gsl_matrix* H, gsl_matrix* G1, gsl_matrix* G2) {
     gsl_matrix* Gswap;
     gsl_matrix_view Hsub;
     size_t i, j;
+
     for (i = 0; i < H->size2; i += G1->size2) {
         Hsub = gsl_matrix_submatrix(H, 0, i, H->size1, G1->size2);
-        kjg_XTXG(X, M, x, y, &Hsub.matrix, G1, G2);
+        kjg_XTXG(X, M, G1, &Hsub.matrix, G2);
         kjg_frobenius_normalize(&Hsub.matrix);
+
         Gswap = G2;
         G2 = G1;
         G1 = Gswap;
     }
 }
 
-void kjg_XTXG(const kjg_geno *X, const double* M, uint8_t *x, double *y, gsl_matrix *H,
-        const gsl_matrix *G1, gsl_matrix *G2) {
+void kjg_XTXG(
+        const kjg_geno *X, const double* M, const gsl_matrix *G1,
+        gsl_matrix *H, gsl_matrix *G2) {
+    size_t i;                                   // row index
+    uint8_t *x  = malloc(sizeof(uint8_t)*X->n); // genotypes
+    double *y   = malloc(sizeof(double)*X->n);  // normalized
+
     gsl_vector_view Hrow;
     gsl_vector_view Xrow = gsl_vector_view_array(y, X->n);
 
     gsl_matrix_set_zero(H);
     gsl_matrix_set_zero(G2);
 
-    size_t i;
     for (i = 0; i < X->m; i++) {
         kjg_geno_get_row(x, X, i);
         kjg_geno_normalize_m(M[i], x, y, X->n);

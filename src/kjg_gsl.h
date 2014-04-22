@@ -73,20 +73,28 @@ float kjg_frobenius_norm(const gsl_matrix* m);
 /**
  * FastPCA blanczos step
  *
- * @param *X compressed genotype matrix
+ * @param *X compressed genotype matrix (MxN)
  * @param *M array of SNP means
- * @param *x temporary storage for unpacked genotype row
- * @param *y temporary storage for normalized genotype row
- * @param *H matrix to store product
- * @param *G1 random norm matrix, will be used for each computation step
- * @param *G2 store next G matrix
+ * @param *H matrix to store product (MxIL)
+ * @param *G1 random norm matrix, will be used for each computation step (NxL)
+ * @param *G2 store next G matrix (NxL)
  */
 
-void kjg_blanczos(const kjg_geno* X, const double *M, uint8_t* x, double* y, gsl_matrix* H,
+void kjg_blanczos(const kjg_geno* X, const double *M, gsl_matrix* H,
         gsl_matrix* G1, gsl_matrix* G2);
 
-void kjg_XTXG(const kjg_geno *X, const double *M, uint8_t *x, double *y, gsl_matrix *H,
-        const gsl_matrix *G1, gsl_matrix *G2);
+/**
+ * Multiply G2 = XT*H = XT*X*G1
+ *
+ * @param *X compressed genotype matrix
+ * @param *M array of SNP means
+ * @param *G1 some matrix
+ * @param *H intermediate matrix
+ * @param *G2 next matrix
+ */
+
+void kjg_XTXG(const kjg_geno *X, const double *M, const gsl_matrix *G1,
+        gsl_matrix *H, gsl_matrix *G2);
 
 void kjg_XG(const kjg_geno *X, const double *M, uint8_t *x, double *y, gsl_matrix *H,
         const gsl_matrix *G);
