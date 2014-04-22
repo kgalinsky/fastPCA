@@ -1,6 +1,9 @@
 MAKE_PATH=$(dir $(lastword $(MAKEFILE_LIST)))
 include $(MAKE_PATH)/vars.mk
 
+PROJ_PATH=$(MAKE_PATH)/..
+export PATH:=$(PROJ_PATH)/src:$(PROJ_PATH)/scripts:$(PROJ_PATH)/R:$(PATH)
+
 .SECONDARY:
 
 %.pca.evec %.pca.eval: $$(b1).geno
