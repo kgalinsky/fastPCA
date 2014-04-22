@@ -75,13 +75,12 @@ float kjg_frobenius_norm(const gsl_matrix* m);
  *
  * @param *X compressed genotype matrix (MxN)
  * @param *M array of SNP means
+ * @param *G random norm matrix (NxL)
  * @param *H matrix to store product (MxIL)
- * @param *G1 random norm matrix, will be used for each computation step (NxL)
- * @param *G2 store next G matrix (NxL)
  */
 
-void kjg_blanczos(const kjg_geno* X, const double *M, gsl_matrix* H,
-        gsl_matrix* G1, gsl_matrix* G2);
+void kjg_blanczos(const kjg_geno* X, const double *M, gsl_matrix* G,
+        gsl_matrix* H);
 
 /**
  * Multiply G2 = XT*H = XT*X*G1

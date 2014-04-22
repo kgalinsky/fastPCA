@@ -43,8 +43,7 @@ int main (int argc, char **argv) {
     double *M    = malloc(sizeof(double)*m);
 
     gsl_rng *r    = kjg_rng_init();
-    gsl_matrix *G1 = gsl_matrix_alloc(n, L);
-    gsl_matrix *G2 = gsl_matrix_alloc(n, L);
+    gsl_matrix *G  = gsl_matrix_alloc(n, L);
     gsl_matrix *H  = gsl_matrix_alloc(m, (I+1)*L);
     gsl_matrix *X1 = gsl_matrix_alloc(H->size2, H->size2);
     gsl_matrix *V1 = gsl_matrix_alloc(H->size2, H->size2);
@@ -65,16 +64,15 @@ int main (int argc, char **argv) {
     fclose(fh_geno);
 
     // STEP 1A - generate G - O(NL)
-    kjg_matrix_set_ran_ugaussian(G1, r);
+    kjg_matrix_set_ran_ugaussian(G, r);
     // kjg_matrix_fprintf(fh_G, G1, "%g");
     // fclose(fh_G);
 
     // STEP 1B - compute H - O(MN(I+1)L)
     kjg_geno_row_means(X, M);
-    kjg_blanczos(X, M, H, G1, G2);
+    kjg_blanczos(X, M, G, H);
     // kjg_matrix_fprintf(fh_H, H, "%g");
     // fclose(fh_H);
-    gsl_matrix_free(G2);
 
     // STEP 2 - supposed to be pivoted QR, but can't figure it out - O(M[(I+1)L)]^2)
     gsl_linalg_SV_decomp_mod(H, X1, V1, S1, work1);

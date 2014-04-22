@@ -69,21 +69,25 @@ void kjg_matrix_set_ran_ugaussian(gsl_matrix* m, const gsl_rng* r) {
 }
 
 void kjg_blanczos(
-        const kjg_geno* X, const double* M,
-        gsl_matrix* H, gsl_matrix* G1, gsl_matrix* G2) {
+        const kjg_geno* X, const double* M, gsl_matrix* G,
+        gsl_matrix* H) {
+    size_t i;
+
+    gsl_matrix* G2 = gsl_matrix_alloc(G->size1, G->size2);
     gsl_matrix* Gswap;
     gsl_matrix_view Hsub;
-    size_t i, j;
 
-    for (i = 0; i < H->size2; i += G1->size2) {
-        Hsub = gsl_matrix_submatrix(H, 0, i, H->size1, G1->size2);
-        kjg_XTXG(X, M, G1, &Hsub.matrix, G2);
+    for (i = 0; i < H->size2; i += G->size2) {
+        Hsub = gsl_matrix_submatrix(H, 0, i, H->size1, G->size2);
+        kjg_XTXG(X, M, G, &Hsub.matrix, G2);
         kjg_frobenius_normalize(&Hsub.matrix);
 
         Gswap = G2;
-        G2 = G1;
-        G1 = Gswap;
+        G2 = G;
+        G = Gswap;
     }
+
+    gsl_matrix_free(G2);
 }
 
 void kjg_XTXG(
