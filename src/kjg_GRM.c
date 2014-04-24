@@ -1,0 +1,51 @@
+/*
+ * kjg_GRM.c
+ *
+ *  Created on: Apr 24, 2014
+ *      Author: Kevin
+ */
+
+#include <stdint.h>
+#include <stdlib.h>
+
+#include "kjg_GRM.h"
+#include "kjg_geno.h"
+
+double* kjg_GRM_init(const size_t n) {
+    size_t i, n2 = n*(n+1)/2;
+    double* GRM = malloc(sizeof(double) * n2);
+    for (i=0; i < n2; i++) { GRM[i] = 0; }
+    return(GRM);
+}
+
+int kjg_GRM_update(const uint8_t* x, double* GRM, const size_t n) {
+    double m = kjg_geno_mean(x, n);
+
+    double s[4];
+    int r = kjg_geno_normalization_lookup(m, s);
+
+    double S[4][4];
+    kjg_GRM_lookup(s, S);
+
+    size_t i, j, k=0;
+    double l;
+    uint8_t xi;
+    for (i = 0; i < n; i++) {
+        xi = x[i];
+        for (j = i; j < n; j++) {
+            GRM[k++] += S[xi][x[j]];
+        }
+    }
+    return (r);
+}
+
+void kjg_GRM_lookup(const double s[4], double S[4][4]) {
+    size_t i, j;
+    for (i = 0; i < 3; i++) {
+        S[i][3] = 0;
+        S[3][i] = 0;
+        for (j = 0; j < 3; j++) {
+            S[i][j] = S[j][i] = s[i] * s[j];
+        }
+    }
+}

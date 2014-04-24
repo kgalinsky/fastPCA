@@ -11,14 +11,11 @@
 #include <stddef.h>
 #include <time.h>
 
-//#include <gsl/gsl_matrix.h>
-//#include <gsl/gsl_vector.h>
-//#include <gsl/gsl_eigen.h>
-
 #include <lapacke.h>
 
 #include "kjg_geno.h"
 #include "kjg_genoIO.h"
+#include "kjg_GRM.h"
 #include "kjg_util.h"
 
 // options and arguments
@@ -48,7 +45,7 @@ int main(int argc, char** argv) {
     size_t n = kjg_genoIO_num_ind(fh_geno);
     size_t m = kjg_genoIO_num_snp(fh_geno, n);
 
-    double* GRM = kjg_geno_GRM_init(n);
+    double* GRM = kjg_GRM_init(n);
 
     {
         char* buffer = malloc(sizeof(char)*(n+1));
@@ -57,7 +54,7 @@ int main(int argc, char** argv) {
         size_t i;
         for (i = 0; i < m; i++) {
             kjg_genoIO_fread(buffer, x, n, fh_geno);
-            kjg_geno_GRM_update(x, GRM, n);
+            kjg_GRM_update(x, GRM, n);
         }
 
         free(buffer);
