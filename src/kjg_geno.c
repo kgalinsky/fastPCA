@@ -78,56 +78,41 @@ void kjg_geno_remap(const double s[4], const uint8_t* x, double* y,
     }
 }
 
-int kjg_geno_snp_correlation(const uint8_t* x, double* C, const size_t n) {
+double* kjg_geno_GRM_init(const size_t n) {
+    size_t i, n2 = n*(n+1)/2;
+    double* GRM = malloc(sizeof(double) * n2);
+    for (i=0; i < n2; i++) { GRM[i] = 0; }
+    return(GRM);
+}
+
+int kjg_geno_GRM_update(const uint8_t* x, double* GRM, const size_t n) {
     double m = kjg_geno_mean(x, n);
 
     double s[4];
     int r = kjg_geno_normalization_lookup(m, s);
 
     double S[4][4];
-    kjg_geno_correlation_lookup(s, S);
+    kjg_geno_GRM_lookup(s, S);
 
-    size_t i, j, ni;
+    size_t i, j, k=0;
     double l;
     uint8_t xi;
     for (i = 0; i < n; i++) {
-        ni = n * i;
         xi = x[i];
-        C[ni+i] += S[xi][xi];
-        for (j = 0; j < i; j++) {
-            l = S[xi][x[j]];
-            C[ni+j] += l;
+        for (j = i; j < n; j++) {
+            GRM[k++] += S[xi][x[j]];
         }
     }
     return (r);
 }
 
-void kjg_geno_correlation_lookup(const double s[4], double S[4][4]) {
+void kjg_geno_GRM_lookup(const double s[4], double S[4][4]) {
     size_t i, j;
     for (i = 0; i < 3; i++) {
         S[i][3] = 0;
         S[3][i] = 0;
         for (j = 0; j < 3; j++) {
             S[i][j] = S[j][i] = s[i] * s[j];
-        }
-    }
-}
-
-double* kjg_geno_correlation_matrix_init(const size_t n) {
-    size_t i, n2 = n*n;
-    double* C = malloc(sizeof(double) * n2);
-    for (i = 0; i < n2; i++) {
-        C[i] = 0;
-    }
-    return (C);
-}
-
-void kjg_geno_correlation_matrix_finish(double* C, const size_t n) {
-    size_t i, j, ni;
-    for (i = 1; i < n; i++) {
-        ni = n*i;
-        for (j = i+1; j < n; j++) {
-            C[ni+j] = C[j*n+i];
         }
     }
 }
