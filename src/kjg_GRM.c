@@ -12,9 +12,7 @@
 #include "kjg_geno.h"
 
 double* kjg_GRM_init(const size_t n) {
-    size_t i, n2 = n*(n+1)/2;
-    double* GRM = malloc(sizeof(double) * n2);
-    for (i=0; i < n2; i++) { GRM[i] = 0; }
+    double* GRM = calloc(n*(n+1)/2, sizeof(double));
     return(GRM);
 }
 
