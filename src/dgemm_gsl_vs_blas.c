@@ -9,7 +9,7 @@
 #include <time.h>
 
 #include <gsl/gsl_matrix.h>
-//#include <cblas.h>
+#include <gsl/gsl_blas.h>
 #include "kjg_gsl.h"
 
 void print_time () {
