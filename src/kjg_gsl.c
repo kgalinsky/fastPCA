@@ -14,7 +14,7 @@
 
 #include "kjg_gsl.h"
 
-void kjg_matrix_fprintf(FILE* stream, gsl_matrix* m, const char* template) {
+void kjg_gsl_matrix_fprintf(FILE* stream, gsl_matrix* m, const char* template) {
     size_t i, j;
     for (i = 0; i < m->size1; i++) {
         fprintf(stream, template, gsl_matrix_get(m, i, 0));
@@ -26,7 +26,7 @@ void kjg_matrix_fprintf(FILE* stream, gsl_matrix* m, const char* template) {
     }
 }
 
-gsl_rng *kjg_rng_init() {
+gsl_rng *kjg_gsl_rng_init() {
     const gsl_rng_type * T;
     gsl_rng * r;
 
@@ -41,29 +41,40 @@ gsl_rng *kjg_rng_init() {
     return(r);
 }
 
-int kjg_frobenius_normalize(gsl_matrix* m) {
-    double s = kjg_frobenius_norm(m);
+int kjg_gsl_matrix_frobenius_normalize(gsl_matrix* m) {
+    double s = kjg_gsl_matrix_frobenius_norm(m);
     double d = m->size1 * m->size2;
     return (gsl_matrix_scale(m, d / s));
 }
 
-float kjg_frobenius_norm(const gsl_matrix* m) {
-    size_t i, j;
-    double sumsq = 0;
+float kjg_gsl_matrix_frobenius_norm(const gsl_matrix* m) {
+    size_t i;
+    double norm = 0;
     for (i = 0; i < m->size1; i++) {
-        for (j = 0; j < m->size2; j++) {
-            double mij = gsl_matrix_get(m, i, j);
-            sumsq += mij * mij;
-        }
+        gsl_vector_const_view V = gsl_matrix_const_row (m, i);
+        double n = gsl_blas_dnrm2(&V.vector);
+        norm += n*n;
     }
-    return (sqrt(sumsq));
+    return(sqrt(norm));
 }
 
-void kjg_matrix_set_ran_ugaussian(gsl_matrix* m, const gsl_rng* r) {
+void kjg_gsl_matrix_set_ran_ugaussian(gsl_matrix* m, const gsl_rng* r) {
     size_t i, j;
+    double x, y, r2;
     for (i = 0; i < m->size1; i++) {
-        for (j = 0; j < m->size2; j++) {
-            gsl_matrix_set(m, i, j, gsl_ran_ugaussian(r));
+        for (j = 0; j < m->size2; j+=2) {
+            do {
+                /* choose x,y in uniform square (-1,-1) to (+1,+1) */
+                x = -1 + 2 * gsl_rng_uniform_pos (r);
+                y = -1 + 2 * gsl_rng_uniform_pos (r);
+
+                /* see if it is in the unit circle */
+                r2 = x * x + y * y;
+            } while (r2 > 1.0 || r2 == 0);
+            r2 = sqrt (-2.0 * log (r2) / r2);
+
+            gsl_matrix_set(m, i, j, x*r2);
+            gsl_matrix_set(m, i, j+1, y*r2);
         }
     }
 }
@@ -80,7 +91,7 @@ void kjg_blanczos(
     for (i = 0; i < H->size2; i += G->size2) {
         Hsub = gsl_matrix_submatrix(H, 0, i, H->size1, G->size2);
         kjg_XTXG(X, M, G, &Hsub.matrix, G2);
-        kjg_frobenius_normalize(&Hsub.matrix);
+        kjg_gsl_matrix_frobenius_normalize(&Hsub.matrix);
 
         Gswap = G2;
         G2 = G;
@@ -168,5 +179,5 @@ void kjg_evec_fprintf(FILE* stream, gsl_vector* eval, gsl_matrix* evec,
         fprintf(stream, template, gsl_vector_get(eval, i));
     }
     fprintf(stream, "\n");
-    kjg_matrix_fprintf(stream, evec, template);
+    kjg_gsl_matrix_fprintf(stream, evec, template);
 }

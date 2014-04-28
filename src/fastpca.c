@@ -19,6 +19,7 @@
 #include "kjg_genoIO.h"
 #include "kjg_gsl.h"
 #include "kjg_util.h"
+#include "kjg_rand.h"
 
 // options and arguments
 size_t I = 10;
@@ -42,7 +43,7 @@ int main (int argc, char **argv) {
     kjg_geno *X  = kjg_geno_alloc(m, n);
     double *M    = malloc(sizeof(double)*m);
 
-    gsl_rng *r    = kjg_rng_init();
+    gsl_rng *r    = kjg_gsl_rng_init();
     gsl_matrix *G  = gsl_matrix_alloc(n, L);
     gsl_matrix *H  = gsl_matrix_alloc(m, (I+1)*L);
 
@@ -53,7 +54,8 @@ int main (int argc, char **argv) {
     fclose(fh_geno);
 
     // STEP 1A - generate G - O(NL)
-    kjg_matrix_set_ran_ugaussian(G, r);
+    kjg_gsl_matrix_set_ran_ugaussian(G, r);
+//    kjg_rnorms(n*L, G->data);
     // kjg_matrix_fprintf(fh_G, G1, "%g");
     // fclose(fh_G);
 

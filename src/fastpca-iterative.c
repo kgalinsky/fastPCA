@@ -44,7 +44,7 @@ int main (int argc, char **argv) {
     kjg_geno *X  = kjg_geno_alloc(m, n);
     double *M    = malloc(sizeof(double)*m);
 
-    gsl_rng *r    = kjg_rng_init();
+    gsl_rng *r    = kjg_gsl_rng_init();
     gsl_matrix *G = gsl_matrix_alloc(n, L);
     gsl_matrix *H = gsl_matrix_alloc(m, (I+1)*L);
     gsl_matrix *X1;
@@ -63,7 +63,7 @@ int main (int argc, char **argv) {
     fclose(fh_geno);
 
     // STEP 1A - generate G - O(NL)
-    kjg_matrix_set_ran_ugaussian(G, r);
+    kjg_gsl_matrix_set_ran_ugaussian(G, r);
     // kjg_matrix_fprintf(fh_G, G1, "%g");
     // fclose(fh_G);
 
