@@ -3,7 +3,7 @@ LDLIBS=$(shell gsl-config --libs-without-cblas) -lopenblas -lgfortran
 
 all: pca fastpca fastpca-iterative
 
-pca: pca.o kjg_geno.o kjg_genoIO.o kjg_util.o ~/local/lib/libopenblas.a
+pca: pca.o kjg_geno.o kjg_genoIO.o kjg_util.o kjg_GRM.o
 
 fastpca: fastpca.o kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_util.o kjg_fpca.o
 
