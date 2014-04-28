@@ -19,7 +19,6 @@
 #include "kjg_genoIO.h"
 #include "kjg_gsl.h"
 #include "kjg_util.h"
-#include "kjg_rand.h"
 #include "kjg_fpca.h"
 
 // options and arguments
