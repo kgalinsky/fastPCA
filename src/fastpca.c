@@ -20,6 +20,7 @@
 #include "kjg_gsl.h"
 #include "kjg_util.h"
 #include "kjg_rand.h"
+#include "kjg_fpca.h"
 
 // options and arguments
 size_t I = 10;
@@ -99,7 +100,7 @@ int main (int argc, char **argv) {
     gsl_vector_mul(&S.vector, &S.vector);
     gsl_vector_scale(&S.vector, 1.0 / m);
 
-    kjg_evec_fprintf(fh_evec, &S.vector, &V.matrix, "%g");
+    kjg_gsl_evec_fprintf(fh_evec, &S.vector, &V.matrix, "%g");
     gsl_matrix_free(V2);
     gsl_vector_free(S2);
     fclose(fh_evec);

@@ -113,7 +113,7 @@ int main (int argc, char **argv) {
         gsl_vector_view S = gsl_vector_subvector(S2, 0, K);
         gsl_vector_mul(&S.vector, &S.vector);
 
-        kjg_evec_fprintf(fh_evec, &S.vector, &V.matrix, "%g");
+        kjg_gsl_evec_fprintf(fh_evec, &S.vector, &V.matrix, "%g");
         gsl_matrix_free(V2);
         gsl_vector_free(S2);
     }
