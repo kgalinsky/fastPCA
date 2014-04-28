@@ -20,7 +20,7 @@
  * @param *H matrix to store product (MxIL)
  */
 
-void kjg_blanczos(const kjg_geno* X, const double *M, gsl_matrix* G,
+void kjg_fpca_blanczos(const kjg_geno* X, const double *M, gsl_matrix* G,
         gsl_matrix* H);
 
 /**
@@ -33,7 +33,7 @@ void kjg_blanczos(const kjg_geno* X, const double *M, gsl_matrix* G,
  * @param *G2 next matrix
  */
 
-void kjg_XTXG(const kjg_geno *X, const double *M, const gsl_matrix *G1,
+void kjg_fpca_XTXG(const kjg_geno *X, const double *M, const gsl_matrix *G1,
         gsl_matrix *H, gsl_matrix *G2);
 
 /**
@@ -45,7 +45,7 @@ void kjg_XTXG(const kjg_geno *X, const double *M, const gsl_matrix *G1,
  * @param *H another matrix
  */
 
-void kjg_XG(const kjg_geno *X, const double *M, const gsl_matrix *G,
+void kjg_fpca_XG(const kjg_geno *X, const double *M, const gsl_matrix *G,
         gsl_matrix *H);
 
 /**
@@ -57,7 +57,7 @@ void kjg_XG(const kjg_geno *X, const double *M, const gsl_matrix *G,
  * @param *G another matrix
  */
 
-void kjg_XTH(const kjg_geno *X, const double *M, const gsl_matrix *H,
+void kjg_fpca_XTH(const kjg_geno *X, const double *M, const gsl_matrix *H,
         gsl_matrix *G);
 
 #endif /* KJG_FPCA_H_ */

@@ -69,7 +69,7 @@ int main (int argc, char **argv) {
 
     // STEP 1B - compute H - O(MN(I+1)L)
     kjg_geno_row_means(X, M);
-    kjg_blanczos(X, M, G, H);
+    kjg_fpca_blanczos(X, M, G, H);
     // kjg_matrix_fprintf(fh_H, H, "%g");
     // fclose(fh_H);
 
@@ -95,7 +95,7 @@ int main (int argc, char **argv) {
 
         // STEP 3 - O(MN(I+1)L)
         T  = gsl_matrix_alloc(n, Qv.matrix.size2);
-        kjg_XTH(X, M, &Qv.matrix, T);
+        kjg_fpca_XTH(X, M, &Qv.matrix, T);
         free(M);
 
         // STEP 4 - final SVD

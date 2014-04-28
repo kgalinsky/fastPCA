@@ -13,7 +13,7 @@
 #include "kjg_geno.h"
 #include "kjg_gsl.h"
 
-void kjg_blanczos(
+void kjg_fpca_blanczos(
         const kjg_geno* X, const double* M, gsl_matrix* G,
         gsl_matrix* H) {
     size_t i;
@@ -24,7 +24,7 @@ void kjg_blanczos(
 
     for (i = 0; i < H->size2; i += G->size2) {
         Hsub = gsl_matrix_submatrix(H, 0, i, H->size1, G->size2);
-        kjg_XTXG(X, M, G, &Hsub.matrix, G2);
+        kjg_fpca_XTXG(X, M, G, &Hsub.matrix, G2);
         kjg_gsl_matrix_frobenius_normalize(&Hsub.matrix);
 
         Gswap = G2;
@@ -35,7 +35,7 @@ void kjg_blanczos(
     gsl_matrix_free(G2);
 }
 
-void kjg_XTXG(
+void kjg_fpca_XTXG(
         const kjg_geno *X, const double* M, const gsl_matrix *G1,
         gsl_matrix *H, gsl_matrix *G2) {
     size_t i;                                   // row index
@@ -60,7 +60,7 @@ void kjg_XTXG(
     free(y);
 }
 
-void kjg_XG(const kjg_geno *X, const double *M, const gsl_matrix *G,
+void kjg_fpca_XG(const kjg_geno *X, const double *M, const gsl_matrix *G,
         gsl_matrix *H) {
     size_t i;                                   // row index
     uint8_t *x  = malloc(sizeof(uint8_t)*X->n); // genotypes
@@ -82,7 +82,7 @@ void kjg_XG(const kjg_geno *X, const double *M, const gsl_matrix *G,
     free(y);
 }
 
-void kjg_XTH(const kjg_geno *X, const double *M, const gsl_matrix *H,
+void kjg_fpca_XTH(const kjg_geno *X, const double *M, const gsl_matrix *H,
         gsl_matrix *G) {
     size_t i;                                   // row index
     uint8_t *x  = malloc(sizeof(uint8_t)*X->n); // genotypes
