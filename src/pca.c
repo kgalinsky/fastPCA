@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
     }
 
     gsl_vector_fprintf(fh_eval, eval, "%g");
-    kjg_evec_fprintf(fh_evec, &eval_K.vector, &evec_K.matrix, "%g");
+    kjg_gsl_evec_fprintf(fh_evec, &eval_K.vector, &evec_K.matrix, "%g");
 
     gsl_vector_free(eval);
     gsl_matrix_free(evec);
