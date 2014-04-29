@@ -21,6 +21,8 @@
 #include "kjg_util.h"
 #include "kjg_fpca.h"
 
+//#include <lapacke.h>
+
 // options and arguments
 size_t I = 10;
 size_t L = 10;
@@ -55,26 +57,23 @@ int main (int argc, char **argv) {
 
     // STEP 1A - generate G - O(NL)
     kjg_gsl_matrix_set_ran_ugaussian(G, r);
-//    kjg_rnorms(n*L, G->data);
-    // kjg_matrix_fprintf(fh_G, G1, "%g");
-    // fclose(fh_G);
 
     // STEP 1B - compute H - O(MN(I+1)L)
     kjg_geno_row_means(X, M);
     kjg_fpca_blanczos(X, M, G, H);
-    // kjg_matrix_fprintf(fh_H, H, "%g");
-    // fclose(fh_H);
 
     // STEP 2 - supposed to be pivoted QR, but can't figure it out - O(M[(I+1)L)]^2)
-    gsl_matrix *X1 = gsl_matrix_alloc(H->size2, H->size2);
-    gsl_matrix *V1 = gsl_matrix_alloc(H->size2, H->size2);
-    gsl_vector *S1 = gsl_vector_alloc(H->size2);
-    gsl_vector *work1 = gsl_vector_alloc(H->size2);
-    gsl_linalg_SV_decomp_mod(H, X1, V1, S1, work1);
-    gsl_matrix_free(X1);
-    gsl_matrix_free(V1);
-    gsl_vector_free(S1);
-    gsl_vector_free(work1);
+    {
+        size_t lwork = 5*(H->size1 + H->size2);
+        double *S    = malloc(sizeof(double)*H->size2);
+        double *work = malloc(sizeof(double)*lwork);
+        double U, V;
+        int info = LAPACKE_dgesvd(101, 'O', 'N',
+                H->size1, H->size2, H->data, H->tda,
+                S, &U, m, &V, m, work);
+        free(S);
+        free(work);
+    }
 
     // STEP 3 - O(MN(I+1)L)
     gsl_matrix *Q  = H; // for clarity
@@ -84,24 +83,26 @@ int main (int argc, char **argv) {
     free(M);
 
     // STEP 4 - final SVD
-    gsl_matrix *X2 = gsl_matrix_alloc(T->size2, T->size2);
-    gsl_matrix *W  = gsl_matrix_alloc(T->size2, T->size2);
-    gsl_vector *S2 = gsl_vector_alloc(T->size2);
-    gsl_vector *work2 = gsl_vector_alloc(T->size2);
-    gsl_linalg_SV_decomp_mod(T, X2, W, S2, work2);
-    gsl_matrix_free(X2);
-    gsl_vector_free(work2);
-    gsl_matrix_free(W);
+    gsl_vector *S = gsl_vector_alloc(T->size2);
+    {
+        size_t lwork = 5*(T->size1 + T->size2);
+        double *work = malloc(sizeof(double)*lwork);
+        double U, V;
+        int info = LAPACKE_dgesvd(101, 'O', 'N',
+                T->size1, T->size2, T->data, T->tda, S->data,
+                &U, m, &V, m, work);
+        free(work);
+    }
 
-    gsl_matrix *V2 = T; // for clarity
-    gsl_matrix_view V = gsl_matrix_submatrix(V2, 0, 0, V2->size1, K);
-    gsl_vector_view S = gsl_vector_subvector(S2, 0, K);
-    gsl_vector_mul(&S.vector, &S.vector);
-    gsl_vector_scale(&S.vector, 1.0 / m);
+    // STEP 5 - output top K principle components
+    gsl_matrix_view Vk = gsl_matrix_submatrix(T, 0, 0, T->size1, K);
+    gsl_vector_view Sk = gsl_vector_subvector(S, 0, K);
+    gsl_vector_mul(&Sk.vector, &Sk.vector);
+    gsl_vector_scale(&Sk.vector, 1.0 / m);
 
-    kjg_gsl_evec_fprintf(fh_evec, &S.vector, &V.matrix, "%g");
-    gsl_matrix_free(V2);
-    gsl_vector_free(S2);
+    kjg_gsl_evec_fprintf(fh_evec, &Sk.vector, &Vk.matrix, "%g");
+    gsl_matrix_free(T);
+    gsl_vector_free(S);
     fclose(fh_evec);
 
     return(0);
