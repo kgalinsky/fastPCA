@@ -11,7 +11,7 @@
 #include <gsl/gsl_matrix.h>
 #include "kjg_geno.h"
 
-size_t KJG_FPCA_ROWS = 256; // number of rows to process at once
+extern size_t KJG_FPCA_ROWS; // number of rows to process at once
 
 /**
  * FastPCA blanczos step

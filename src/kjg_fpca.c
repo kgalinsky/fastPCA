@@ -13,6 +13,8 @@
 #include "kjg_geno.h"
 #include "kjg_gsl.h"
 
+size_t KJG_FPCA_ROWS = 256;
+
 void kjg_fpca_blanczos(
         const kjg_geno* X, const double* M, gsl_matrix* G,
         gsl_matrix* H) {
