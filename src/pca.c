@@ -9,14 +9,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <time.h>
 
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_vector.h>
-#include <gsl/gsl_eigen.h>
+#include <lapacke.h>
 
 #include "kjg_geno.h"
 #include "kjg_genoIO.h"
-#include "kjg_gsl.h"
+#include "kjg_GRM.h"
 #include "kjg_util.h"
 
 // options and arguments
@@ -28,6 +27,14 @@ void parse_args(int argc, char **argv);
 extern int opterr, optopt, optind;
 extern char *optarg;
 
+// helper functions
+void scale_evals(double* evals, const size_t n);
+void fprintf_evals(FILE* fh_eval, const char* format, const double* evals, const size_t n);
+void fprintf_evecs(FILE* fh_evec, const char* format,
+        const double* evals, const double* evecs,
+        const size_t n, const size_t K);
+
+// MAIN FUNCTION
 int main(int argc, char** argv) {
     parse_args(argc, argv);
 
@@ -38,51 +45,35 @@ int main(int argc, char** argv) {
     size_t n = kjg_genoIO_num_ind(fh_geno);
     size_t m = kjg_genoIO_num_snp(fh_geno, n);
 
-    size_t i;
-
-    // allocate everything
-    char* buffer = malloc(sizeof(char)*(n+1));
-    uint8_t* x   = malloc(sizeof(uint8_t)*n);
-    double* C   = kjg_geno_correlation_matrix_init(n);
-    gsl_matrix_view A = gsl_matrix_view_array(C, n, n);
-    gsl_eigen_symmv_workspace *w = gsl_eigen_symmv_alloc(n);
-    gsl_vector *eval = gsl_vector_alloc(n);
-    gsl_matrix *evec = gsl_matrix_alloc(n, n);
-    gsl_vector_view eval_K = gsl_vector_subvector(eval, 0, K);
-    gsl_matrix_view evec_K = gsl_matrix_submatrix(evec, 0, 0, n, K);
-
-    for (i = 0; i < m; i++) {
-        kjg_genoIO_fread(buffer, x, n, fh_geno);
-        kjg_geno_snp_correlation(x, C, n);
-    }
-    kjg_geno_correlation_matrix_finish(C, n);
-
-    free(buffer);
-    free(x);
-
-    // kjg_matrix_fprintf(fh_corr, &A.matrix, "%g");
-
-    gsl_eigen_symmv(&A.matrix, eval, evec, w);
-
-    free(C);
-    gsl_eigen_symmv_free(w);
-
-    gsl_eigen_symmv_sort(eval, evec, GSL_EIGEN_SORT_VAL_DESC);
+    double* GRM = kjg_GRM_init(n);
 
     {
-        double sum;
-        for (i = 0; i < n; i++) {
-            sum += gsl_vector_get(eval, i);
+        char* buffer = malloc(sizeof(char)*(n+1));
+        uint8_t* x   = malloc(sizeof(uint8_t)*n);
+
+        size_t i;
+        for (i = 0; i < m; i++) {
+            kjg_genoIO_fread(buffer, x, n, fh_geno);
+            kjg_GRM_update(x, GRM, n);
         }
-        gsl_vector_scale(eval, (double) n / sum );
+
+        free(buffer);
+        free(x);
     }
 
-    gsl_vector_fprintf(fh_eval, eval, "%g");
-    kjg_gsl_evec_fprintf(fh_evec, &eval_K.vector, &evec_K.matrix, "%g");
+    double* evals = malloc(sizeof(double)*n);   // eigenvalues
+    double* evecs = malloc(sizeof(double)*n*n); // eigenvectors
 
-    gsl_vector_free(eval);
-    gsl_matrix_free(evec);
-    fclose(fh_evec);
+    LAPACKE_dspevd(102, 'V', 'L', n, GRM, evals, evecs, n );
+
+    free(GRM);
+
+    scale_evals(evals, n);
+    fprintf_evals(fh_eval, "%g", evals, n);
+    fprintf_evecs(fh_evec, "%g", evals, evecs, n, K);
+
+    free(evals);
+    free(evecs);
 
     return(0);
 }
@@ -122,3 +113,43 @@ void parse_args (int argc, char **argv) {
     }
 }
 
+void scale_evals(double* evals, const size_t n) {
+    size_t i;
+    double sum = 0;
+    for (i = 0; i < n; i++) {
+        sum += evals[i];
+    }
+    double scale = (double) n / sum;
+    for (i = 0; i < n; i++) {
+        evals[i] *= scale;
+    }
+}
+
+void fprintf_evals(FILE* fh_eval, const char* format, const double* evals, const size_t n) {
+    size_t i;
+    for (i = n; i-- > 0;) {
+        fprintf(fh_eval, format, evals[i]);
+        fprintf(fh_eval, "\n");
+    }
+}
+
+void fprintf_evecs(FILE* fh_evec, const char* format,
+        const double* evals, const double* evecs,
+        const size_t n, const size_t K) {
+    size_t i, j;
+    fprintf(fh_evec, "#");
+    fprintf(fh_evec, format, evals[n - 1]);
+    for (i = n - 1; i-- > n - K;) {
+        fprintf(fh_evec, "\t");
+        fprintf(fh_evec, format, evals[i]);
+    }
+    fprintf(fh_evec, "\n");
+    for (i = 0; i < n; i++) {
+        fprintf(fh_evec, format, evecs[n * (n - 1) + i]);
+        for (j = n - 2; j-- > n - K;) {
+            fprintf(fh_evec, "\t");
+            fprintf(fh_evec, format, evecs[n * j + i]);
+        }
+        fprintf(fh_evec, "\n");
+    }
+}

@@ -19,7 +19,6 @@
 #include "kjg_genoIO.h"
 #include "kjg_gsl.h"
 #include "kjg_util.h"
-#include "kjg_rand.h"
 #include "kjg_fpca.h"
 
 // options and arguments
@@ -62,7 +61,7 @@ int main (int argc, char **argv) {
 
     // STEP 1B - compute H - O(MN(I+1)L)
     kjg_geno_row_means(X, M);
-    kjg_blanczos(X, M, G, H);
+    kjg_fpca_blanczos(X, M, G, H);
     // kjg_matrix_fprintf(fh_H, H, "%g");
     // fclose(fh_H);
 
@@ -80,7 +79,7 @@ int main (int argc, char **argv) {
     // STEP 3 - O(MN(I+1)L)
     gsl_matrix *Q  = H; // for clarity
     gsl_matrix *T  = gsl_matrix_alloc(n, H->size2);
-    kjg_XTH(X, M, Q, T);
+    kjg_fpca_XTH(X, M, Q, T);
     kjg_geno_free(X);
     free(M);
 
@@ -112,7 +111,7 @@ void parse_args (int argc, char **argv) {
     int c;
 
     opterr = 1;
-    while ((c = getopt(argc, argv, "i:k:l:o:")) != -1) {
+    while ((c = getopt(argc, argv, "i:k:l:o:r:")) != -1) {
         switch (c) {
         case 'i':
             I = atoi(optarg);
@@ -125,6 +124,9 @@ void parse_args (int argc, char **argv) {
             break;
         case 'o':
             OUTPUT_PREFIX = optarg;
+            break;
+        case 'r':
+            KJG_FPCA_ROWS = atoi(optarg);
             break;
         default:
             fprintf(stderr, "Unrecognized option '-%c'\n", optopt);

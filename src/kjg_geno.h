@@ -71,42 +71,6 @@ void kjg_geno_remap(const double s[4], const uint8_t* x, double* y,
 int kjg_geno_normalization_lookup(const double m, double s[4]);
 
 /**
- * Add correlations for a SNP to a correlation matrix.
- *
- * @params *x array of genotypes
- * @params *C array of correlations
- * @params n number of subjects
- * @return success (0) or zero-good genos (1)
- */
-int kjg_geno_snp_correlation(const uint8_t* x, double* C, const size_t n);
-
-/**
- * Compute the correlation lookup array.
- *
- * @param s[4] normalization lookup
- * @param S[4][4] 4x4 array to store products of scaled genotypes
- * @return success (0) or zero-good genos (1)
- */
-void kjg_geno_correlation_lookup(const double s[4], double S[4][4]);
-
-/**
- * Initialize correlation matrix.
- *
- * @param n number of subjects
- * @return array
- */
-double* kjg_geno_correlation_matrix_init(const size_t n);
-
-/**
- * Finish off a correlation matrix.
- *
- * @param *C correlation matrix
- * @param n number of subjects
- * @return array
- */
-void kjg_geno_correlation_matrix_finish(double* C, const size_t n);
-
-/**
  * Pack genotype array
  *
  * @param *x raw genotypes

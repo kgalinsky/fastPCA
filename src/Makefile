@@ -1,9 +1,9 @@
 CFLAGS=$(shell gsl-config --cflags)
-LDLIBS=$(shell gsl-config --libs-without-cblas) -L/home/Kevin/local/lib -lopenblas
+LDLIBS=$(shell gsl-config --libs-without-cblas) -lopenblas -lgfortran
 
 all: pca fastpca fastpca-iterative
 
-pca: pca.o kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_util.o
+pca: pca.o kjg_geno.o kjg_genoIO.o kjg_util.o kjg_GRM.o
 
 fastpca: fastpca.o kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_util.o kjg_fpca.o
 
@@ -12,4 +12,4 @@ fastpca-iterative: fastpca-iterative.o kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_uti
 clean:
 	rm -rf *.o *.exe
 
-dgemm_gsl_vs_blas: foo.o kjg_gsl.o
+dgemm_gsl_vs_blas: dgemm_gsl_vs_blas.o kjg_gsl.o

@@ -12,6 +12,8 @@ use Math::Random qw/
 my $unif_low  = 0.1;
 my $unif_high = 0.9;
 
+foreach (@ARGV) { s/k/000/g }
+
 my $m = $ARGV[0];
 $m =~ s/k/000/;
 
