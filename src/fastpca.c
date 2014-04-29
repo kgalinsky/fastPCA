@@ -82,7 +82,7 @@ int main (int argc, char **argv) {
     kjg_geno_free(X);
     free(M);
 
-    // STEP 4 - final SVD
+    // STEP 4 - final SVD - O(N[(I+1)L]^2)
     gsl_vector *S = gsl_vector_alloc(T->size2);
     {
         size_t lwork = 5*(T->size1 + T->size2);
