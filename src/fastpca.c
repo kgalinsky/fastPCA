@@ -111,7 +111,7 @@ void parse_args (int argc, char **argv) {
     int c;
 
     opterr = 1;
-    while ((c = getopt(argc, argv, "i:k:l:o:")) != -1) {
+    while ((c = getopt(argc, argv, "i:k:l:o:r:")) != -1) {
         switch (c) {
         case 'i':
             I = atoi(optarg);
@@ -124,6 +124,9 @@ void parse_args (int argc, char **argv) {
             break;
         case 'o':
             OUTPUT_PREFIX = optarg;
+            break;
+        case 'r':
+            KJG_FPCA_ROWS = atoi(optarg);
             break;
         default:
             fprintf(stderr, "Unrecognized option '-%c'\n", optopt);
