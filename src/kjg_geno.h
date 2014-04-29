@@ -127,6 +127,34 @@ void kjg_geno_set_row(const uint8_t* x, kjg_geno* g, const size_t i);
 void kjg_geno_get_row(uint8_t* x, const kjg_geno* g, const size_t i);
 
 /**
+ * Get a row and normalize it.
+ *
+ * @param *x unpacked genotype row
+ * @param *y normalized genotype row
+ * @param *g geno struct
+ * @param *M mean array
+ * @param i row index
+ */
+
+void kjg_geno_get_normalized_row(uint8_t* x, double* y,
+        const kjg_geno* g, const double* M, const size_t i);
+
+/**
+ * Get multiple row and normalized rows
+ *
+ * @param *x unpacked genotype row (will hold last one)
+ * @param *Y normalized genotype rows
+ * @param *g geno struct
+ * @param *M mean array
+ * @param i row index
+ * @param r number of rows to get
+ * @return number of rows retrieved
+ */
+
+size_t kjg_geno_get_normalized_rows(uint8_t* x, double* Y,
+        const kjg_geno* g, const double* M, const size_t i, const size_t r);
+
+/**
  * Compute the mean genotype of all SNPs in the geno object
  *
  * @param *g geno object

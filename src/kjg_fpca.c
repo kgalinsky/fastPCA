@@ -40,32 +40,18 @@ void kjg_fpca_blanczos(
 void kjg_fpca_XTXG(
         const kjg_geno *X, const double* M, const gsl_matrix *G1,
         gsl_matrix *H, gsl_matrix *G2) {
-    size_t i, j;                                           // row index
-    size_t m = X->m, n = X->n, rows = KJG_FPCA_ROWS;
-    uint8_t *x  = malloc(sizeof(uint8_t)*n);               // genotypes
-    double *Y   = malloc(sizeof(double)*n*KJG_FPCA_ROWS);  // normalized
-    double *y;
-
-    gsl_matrix_view Hmat;
-    gsl_vector_view Xrow = gsl_vector_view_array(y, n);
-    gsl_matrix_view Xmat = gsl_matrix_view_array(Y, rows, n);
+    size_t i, r;                                                // row index
+    uint8_t *x  = malloc(sizeof(uint8_t)*X->n);                 // genotypes
+    double *Y   = malloc(sizeof(double)*X->n*KJG_FPCA_ROWS);    // normalized
+    gsl_matrix_view Hmat, Xmat;
 
     gsl_matrix_set_zero(H);
     gsl_matrix_set_zero(G2);
 
-    for (i = 0; i < m; i += rows) {
-        y = Y;
-        for (j = i; j < i + rows && j < m; j++) {
-            kjg_geno_get_row(x, X, j);
-            kjg_geno_normalize_m(M[j], x, y, n);
-            y += n;
-        }
-        if (j == m) {
-            rows = m-i;
-            Xmat = gsl_matrix_view_array(Y, rows, n);
-        }
-
-        Hmat = gsl_matrix_submatrix (H, i, 0, rows, H->size2);
+    for (i = 0; i < X->m; i += KJG_FPCA_ROWS) {
+        r = kjg_geno_get_normalized_rows(x, Y, X, M, i, KJG_FPCA_ROWS);
+        Xmat = gsl_matrix_view_array(Y, r, X->n);
+        Hmat = gsl_matrix_submatrix (H, i, 0, r, H->size2);
         gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, &Xmat.matrix, G1, 0, &Hmat.matrix);
         gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, &Xmat.matrix, &Hmat.matrix, 1, G2);
     }
