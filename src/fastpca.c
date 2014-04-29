@@ -57,15 +57,10 @@ int main (int argc, char **argv) {
 
     // STEP 1A - generate G - O(NL)
     kjg_gsl_matrix_set_ran_ugaussian(G, r);
-//    kjg_rnorms(n*L, G->data);
-    // kjg_matrix_fprintf(fh_G, G1, "%g");
-    // fclose(fh_G);
 
     // STEP 1B - compute H - O(MN(I+1)L)
     kjg_geno_row_means(X, M);
     kjg_fpca_blanczos(X, M, G, H);
-    // kjg_matrix_fprintf(fh_H, H, "%g");
-    // fclose(fh_H);
 
     // STEP 2 - supposed to be pivoted QR, but can't figure it out - O(M[(I+1)L)]^2)
     {
@@ -99,6 +94,7 @@ int main (int argc, char **argv) {
         free(work);
     }
 
+    // STEP 5 - output top K principle components
     gsl_matrix_view Vk = gsl_matrix_submatrix(T, 0, 0, T->size1, K);
     gsl_vector_view Sk = gsl_vector_subvector(S, 0, K);
     gsl_vector_mul(&Sk.vector, &Sk.vector);
