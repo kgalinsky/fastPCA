@@ -13,3 +13,5 @@ clean:
 	rm -rf *.o *.exe
 
 dgemm_gsl_vs_blas: dgemm_gsl_vs_blas.o kjg_gsl.o
+
+submatrix: submatrix.o kjg_gsl.o

@@ -21,6 +21,8 @@
 #include "kjg_util.h"
 #include "kjg_fpca.h"
 
+//#include <lapacke.h>
+
 // options and arguments
 size_t I = 10;
 size_t L = 10;
@@ -67,15 +69,15 @@ int main (int argc, char **argv) {
 
     // STEP 2 - supposed to be pivoted QR, but can't figure it out - O(M[(I+1)L)]^2)
     {
-        gsl_matrix *X = gsl_matrix_alloc(H->size2, H->size2);
-        gsl_matrix *V = gsl_matrix_alloc(H->size2, H->size2);
-        gsl_vector *S = gsl_vector_alloc(H->size2);
-        gsl_vector *work = gsl_vector_alloc(H->size2);
-        gsl_linalg_SV_decomp_mod(H, X, V, S, work);
-        gsl_matrix_free(X);
-        gsl_matrix_free(V);
-        gsl_vector_free(S);
-        gsl_vector_free(work);
+        size_t lwork = 5*(H->size1 + H->size2);
+        double *S    = malloc(sizeof(double)*H->size2);
+        double *work = malloc(sizeof(double)*lwork);
+        double U, V;
+        int info = LAPACKE_dgesvd(101, 'O', 'N',
+                H->size1, H->size2, H->data, H->tda,
+                S, &U, m, &V, m, work);
+        free(S);
+        free(work);
     }
 
     // STEP 3 - O(MN(I+1)L)
@@ -88,13 +90,13 @@ int main (int argc, char **argv) {
     // STEP 4 - final SVD
     gsl_vector *S = gsl_vector_alloc(T->size2);
     {
-        gsl_matrix *X = gsl_matrix_alloc(T->size2, T->size2);
-        gsl_matrix *W = gsl_matrix_alloc(T->size2, T->size2);
-        gsl_vector *work = gsl_vector_alloc(T->size2);
-        gsl_linalg_SV_decomp_mod(T, X, W, S, work);
-        gsl_matrix_free(X);
-        gsl_matrix_free(W);
-        gsl_vector_free(work);
+        size_t lwork = 5*(T->size1 + T->size2);
+        double *work = malloc(sizeof(double)*lwork);
+        double U, V;
+        int info = LAPACKE_dgesvd(101, 'O', 'N',
+                T->size1, T->size2, T->data, T->tda, S->data,
+                &U, m, &V, m, work);
+        free(work);
     }
 
     gsl_matrix_view Vk = gsl_matrix_submatrix(T, 0, 0, T->size1, K);
