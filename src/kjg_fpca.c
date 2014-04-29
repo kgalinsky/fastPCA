@@ -62,43 +62,40 @@ void kjg_fpca_XTXG(
 
 void kjg_fpca_XG(const kjg_geno *X, const double *M, const gsl_matrix *G,
         gsl_matrix *H) {
-    size_t i;                                   // row index
-    uint8_t *x  = malloc(sizeof(uint8_t)*X->n); // genotypes
-    double *y   = malloc(sizeof(double)*X->n);  // normalized
-
-    gsl_vector_view Hrow;
-    gsl_vector_view Xrow = gsl_vector_view_array(y, X->n);
+    size_t i, r;
+    uint8_t *x  = malloc(sizeof(uint8_t)*X->n);
+    double *Y   = malloc(sizeof(double)*X->n*KJG_FPCA_ROWS);
+    gsl_matrix_view Hmat, Xmat;
 
     gsl_matrix_set_zero(H);
 
-    for (i = 0; i < X->m; i++) {
-        kjg_geno_get_row(x, X, i);
-        kjg_geno_normalize_m(M[i], x, y, X->n);
-        Hrow = gsl_matrix_row(H, i);
-        gsl_blas_dgemv(CblasTrans, 1, G, &Xrow.vector, 0, &Hrow.vector);
+    for (i = 0; i < X->m; i += KJG_FPCA_ROWS) {
+        r = kjg_geno_get_normalized_rows(x, Y, X, M, i, KJG_FPCA_ROWS);
+        Xmat = gsl_matrix_view_array(Y, r, X->n);
+        Hmat = gsl_matrix_submatrix (H, i, 0, r, H->size2);
+        gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, &Xmat.matrix, G, 0, &Hmat.matrix);
     }
 
     free(x);
-    free(y);
+    free(Y);
 }
 
 void kjg_fpca_XTH(const kjg_geno *X, const double *M, const gsl_matrix *H,
         gsl_matrix *G) {
-    size_t i;                                   // row index
-    uint8_t *x  = malloc(sizeof(uint8_t)*X->n); // genotypes
-    double *y   = malloc(sizeof(double)*X->n);  // normalized
-
-    gsl_vector_view Xrow = gsl_vector_view_array(y, X->n);
+    size_t i, r;
+    uint8_t *x  = malloc(sizeof(uint8_t)*X->n);
+    double *Y   = malloc(sizeof(double)*X->n*KJG_FPCA_ROWS);
+    gsl_matrix_view Xmat;
 
     gsl_matrix_set_zero(G);
 
-    for (i = 0; i < X->m; i++) {
-        kjg_geno_get_row(x, X, i);
-        kjg_geno_normalize_m(M[i], x, y, X->n);
-        gsl_vector_const_view Hrow = gsl_matrix_const_row(H, i);
-        gsl_blas_dger (1, &Xrow.vector, &Hrow.vector, G);
+    for (i = 0; i < X->m; i += KJG_FPCA_ROWS) {
+        r = kjg_geno_get_normalized_rows(x, Y, X, M, i, KJG_FPCA_ROWS);
+        Xmat = gsl_matrix_view_array(Y, r, X->n);
+        gsl_matrix_const_view Hmat   = gsl_matrix_const_submatrix (H, i, 0, r, H->size2);
+        gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, &Xmat.matrix, &Hmat.matrix, 1, G);
     }
 
     free(x);
-    free(y);
+    free(Y);
 }
