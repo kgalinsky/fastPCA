@@ -16,7 +16,3 @@ fastpca-iterative: fastpca-iterative.o kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_uti
 
 clean:
 	rm -rf *.o *.exe $(executables)
-
-dgemm_gsl_vs_blas: dgemm_gsl_vs_blas.o kjg_gsl.o
-
-submatrix: submatrix.o kjg_gsl.o
