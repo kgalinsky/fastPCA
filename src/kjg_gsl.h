@@ -57,12 +57,13 @@ void kjg_gsl_matrix_set_ran_ugaussian(gsl_matrix* m, const gsl_rng* r);
 int kjg_gsl_matrix_frobenius_normalize(gsl_matrix* m);
 
 /**
- * Calculate the frobenius norm
+ * Calculate the norm of a matrix
  *
+ * @param norm type of norm to return, see lapack dlange
  * @param *m matrix to find norm of
  * @return norm
  */
 
-float kjg_gsl_matrix_frobenius_norm(const gsl_matrix* m);
+double kjg_gsl_dlange(const char norm, const gsl_matrix* m);
 
 #endif /* KJG_GSL_H_ */

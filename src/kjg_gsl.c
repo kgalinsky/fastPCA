@@ -14,6 +14,8 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_blas.h>
 
+#include <lapacke.h>
+
 #include "kjg_gsl.h"
 
 void kjg_gsl_matrix_fprintf(FILE* stream, gsl_matrix* m, const char* template) {
@@ -57,25 +59,13 @@ gsl_rng *kjg_gsl_rng_init() {
 }
 
 int kjg_gsl_matrix_frobenius_normalize(gsl_matrix* m) {
-    double s = kjg_gsl_matrix_frobenius_norm(m);
+    double s = kjg_gsl_dlange('F', m);
     double d = m->size1 * m->size2;
     return (gsl_matrix_scale(m, d / s));
 }
 
-float kjg_gsl_matrix_frobenius_norm(const gsl_matrix* m) {
-    if (m->size2 == m->tda) {
-        gsl_vector_const_view V = gsl_vector_const_view_array(m->data, m->size1*m->size2);
-        return(gsl_blas_dnrm2(&V.vector));
-    }
-
-    size_t i;
-    double norm = 0;
-    for (i = 0; i < m->size1; i++) {
-        gsl_vector_const_view V = gsl_matrix_const_row (m, i);
-        double n = gsl_blas_dnrm2(&V.vector);
-        norm += n*n;
-    }
-    return(sqrt(norm));
+double kjg_gsl_dlange(const char norm, const gsl_matrix* m) {
+    return(LAPACKE_dlange(LAPACK_ROW_MAJOR, norm, m->size1, m->size2, m->data, m->tda));
 }
 
 void kjg_gsl_matrix_set_ran_ugaussian(gsl_matrix* m, const gsl_rng* r) {
