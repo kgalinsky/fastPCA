@@ -17,23 +17,23 @@ ladder/%.evec: $$(b4).geno
 
 # One population; sim1.$(SNP).$(IND).geno
 sim1.%.geno:
-	rand_pop.pl $(t1) $(t2) > $@ 2> /dev/null
+	rand_geno.pl $(t1) $(t2) > $@ 2> /dev/null
 
 # Two populations of size N; sim2.$(SNP).$(FST).$(N).geno
 sim2.%.geno:
-	rand_pop.pl $(t1) [.$(t2),$(t3),$(t3)] > $@ 2> /dev/null
+	rand_geno.pl $(t1) [.$(t2),$(t3),$(t3)] > $@ 2> /dev/null
 
 # Three populations of size N from one ancestor
 sim3.%.geno:
-	rand_pop.pl $(t1) [.$(t2),$(t3),$(t3),$(t3)] > $@ 2> /dev/null
+	rand_geno.pl $(t1) [.$(t2),$(t3),$(t3),$(t3)] > $@ 2> /dev/null
 
 # Two splits; sim3a.$(SNP).$(FST1).$(FST2).$(N).geno
 sim3a.%.geno:
-	rand_pop.pl $(t1) [.$(t2),[.$(t3),$(t4),$(t4)],$(t4)] > $@ 2> /dev/null
+	rand_geno.pl $(t1) [.$(t2),[.$(t3),$(t4),$(t4)],$(t4)] > $@ 2> /dev/null
 
 # Three splits
 sim4a.%.geno:
-	rand_pop.pl $(t1) [.$(t2),[.$(t3),[.$(t4),$(t5),$(t5)],$(t5)],$(t5)] > $@ 2> /dev/null
+	rand_geno.pl $(t1) [.$(t2),[.$(t3),[.$(t4),$(t5),$(t5)],$(t5)],$(t5)] > $@ 2> /dev/null
 
 %.r2.trace: $$(b3).10.pca.evec ladder/%.10.evec
 	i=0; while [ $$i -le 10 ] ; do \
