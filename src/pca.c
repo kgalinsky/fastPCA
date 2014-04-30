@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
     double* evals = malloc(sizeof(double)*n);   // eigenvalues
     double* evecs = malloc(sizeof(double)*n*n); // eigenvectors
 
-    LAPACKE_dspevd(102, 'V', 'L', n, GRM, evals, evecs, n );
+    LAPACKE_dspevd(LAPACK_COL_MAJOR, 'V', 'L', n, GRM, evals, evecs, n );
 
     free(GRM);
 
