@@ -24,7 +24,7 @@ void kjg_fpca_blanczos(
     gsl_matrix* Gswap;
     gsl_matrix_view Hsub;
 
-    for (i = 0; i < H->size2; i += G->size2) {
+    for (i = 0; i < H->size2 - G->size2; i += G->size2) {
         Hsub = gsl_matrix_submatrix(H, 0, i, H->size1, G->size2);
         kjg_fpca_XTXG(X, M, G, &Hsub.matrix, G2);
         kjg_gsl_matrix_frobenius_normalize(&Hsub.matrix);
@@ -35,6 +35,10 @@ void kjg_fpca_blanczos(
     }
 
     gsl_matrix_free(G2);
+
+    Hsub = gsl_matrix_submatrix(H, 0, i, H->size1, G->size2);
+    kjg_fpca_XG(X, M, G, &Hsub.matrix);
+    kjg_gsl_matrix_frobenius_normalize(&Hsub.matrix);
 }
 
 void kjg_fpca_XTXG(
