@@ -26,12 +26,9 @@ int kjg_GRM_update(const uint8_t* x, double* GRM, const size_t n) {
     kjg_GRM_lookup(s, S);
 
     size_t i, j, k=0;
-    double l;
-    uint8_t xi;
     for (i = 0; i < n; i++) {
-        xi = x[i];
         for (j = i; j < n; j++) {
-            GRM[k++] += S[xi][x[j]];
+            GRM[k++] += S[x[i]][x[j]];
         }
     }
     return (r);
