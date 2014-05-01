@@ -76,11 +76,11 @@ int main (int argc, char **argv) {
     }
 
     // STEP 3 - O(MN(I+1)L)
-    gsl_matrix *Q  = H; // for clarity
     gsl_matrix *T  = gsl_matrix_alloc(n, H->size2);
-    kjg_fpca_XTH(X, M, Q, T);
+    kjg_fpca_XTH(X, M, H, T);
     kjg_geno_free(X);
     free(M);
+    gsl_matrix_free(H);
 
     // STEP 4 - final SVD - O(N[(I+1)L]^2)
     gsl_vector *S = gsl_vector_alloc(T->size2);
