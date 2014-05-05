@@ -35,8 +35,12 @@ extern int opterr, optopt, optind;
 extern char *optarg;
 
 int timelog(const char* message);
+struct timespec t0;
+
+struct timespec elapsed();
 
 int main (int argc, char **argv) {
+    clock_gettime(CLOCK_REALTIME, &t0);
     parse_args(argc, argv);
 
     FILE *fh_geno = fopen(GENO_FILENAME, "r");
@@ -168,7 +172,17 @@ void parse_args (int argc, char **argv) {
 }
 
 int timelog(const char* message) {
-    struct timespec ts;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts);
+    struct timespec ts = elapsed();
     return(printf("[%06d.%09d] %s\n", ts.tv_sec, ts.tv_nsec, message));
+}
+
+struct timespec elapsed() {
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    if (ts.tv_nsec < t0.tv_nsec) {
+        ts.tv_nsec = 1000000000 + ts.tv_nsec - t0.tv_nsec;
+        ts.tv_sec--;
+    }
+    ts.tv_sec -= t0.tv_sec;
+    return(ts);
 }
