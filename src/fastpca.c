@@ -52,17 +52,21 @@ int main (int argc, char **argv) {
     FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
 
     // PREP - read genotype file into memory
+    printf("Reading geno\n");
     kjg_genoIO_fread_geno(X, fh_geno);
     fclose(fh_geno);
 
     // STEP 1A - generate G - O(NL)
+    printf("Generating random matrix\n");
     kjg_gsl_matrix_set_ran_ugaussian(G, r);
 
     // STEP 1B - compute H - O(MN(I+1)L)
+    printf("Computing H\n");
     kjg_geno_row_means(X, M);
     kjg_fpca_blanczos(X, M, G, H);
 
     // STEP 2 - supposed to be pivoted QR, but can't figure it out - O(M[(I+1)L)]^2)
+    printf("SVD of H\n");
     {
         size_t lwork = 5*(H->size1 + H->size2);
         double *S    = malloc(sizeof(double)*H->size2);
@@ -76,6 +80,7 @@ int main (int argc, char **argv) {
     }
 
     // STEP 3 - O(MN(I+1)L)
+    printf("Computing T\n");
     gsl_matrix *T  = gsl_matrix_alloc(n, H->size2);
     kjg_fpca_XTH(X, M, H, T);
     kjg_geno_free(X);
@@ -83,6 +88,7 @@ int main (int argc, char **argv) {
     gsl_matrix_free(H);
 
     // STEP 4 - final SVD - O(N[(I+1)L]^2)
+    printf("SVD of T\n");
     gsl_vector *S = gsl_vector_alloc(T->size2);
     {
         size_t lwork = 5*(T->size1 + T->size2);
@@ -95,6 +101,7 @@ int main (int argc, char **argv) {
     }
 
     // STEP 5 - output top K principle components
+    printf("Output\n");
     gsl_matrix_view Vk = gsl_matrix_submatrix(T, 0, 0, T->size1, K);
     gsl_vector_view Sk = gsl_vector_subvector(S, 0, K);
     gsl_vector_mul(&Sk.vector, &Sk.vector);
