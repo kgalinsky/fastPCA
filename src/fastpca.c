@@ -41,6 +41,8 @@ struct timespec elapsed();
 
 int main (int argc, char **argv) {
     clock_gettime(CLOCK_REALTIME, &t0);
+    char message[256];
+
     parse_args(argc, argv);
 
     FILE *fh_geno = fopen(GENO_FILENAME, "r");
@@ -58,16 +60,19 @@ int main (int argc, char **argv) {
     FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
 
     // PREP - read genotype file into memory
-    timelog("Reading geno");
+    sprintf(message, "Reading geno (%dx%d)", m, n);
+    timelog(message);
     kjg_genoIO_fread_geno(X, fh_geno);
     fclose(fh_geno);
 
     // STEP 1A - generate G - O(NL)
-    timelog("Generating random matrix");
+    sprintf(message, "Generating random matrix (%dx%d)", n, L);
+    timelog(message);
     kjg_gsl_matrix_set_ran_ugaussian(G, r);
 
     // STEP 1B - compute H - O(MN(I+1)L)
-    timelog("Computing H");
+    sprintf(message, "Computing H (%dx%d)", m, H->size2);
+    timelog(message);
     kjg_geno_row_means(X, M);
     kjg_fpca_blanczos(X, M, G, H);
 
@@ -86,7 +91,8 @@ int main (int argc, char **argv) {
     }
 
     // STEP 3 - O(MN(I+1)L)
-    timelog("Computing T");
+    sprintf(message, "Computing T (%dx%d)", n, H->size2);
+    timelog(message);
     gsl_matrix *T  = gsl_matrix_alloc(n, H->size2);
     kjg_fpca_XTH(X, M, H, T);
     kjg_geno_free(X);
