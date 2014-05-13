@@ -114,12 +114,12 @@ int main (int argc, char **argv) {
 
     // STEP 5 - output top K principle components
     timelog("Output");
-    gsl_matrix_view Vk = gsl_matrix_submatrix(T, 0, 0, T->size1, K);
+    gsl_matrix_view Uk = gsl_matrix_submatrix(T, 0, 0, T->size1, K);
     gsl_vector_view Sk = gsl_vector_subvector(S, 0, K);
     gsl_vector_mul(&Sk.vector, &Sk.vector);
     gsl_vector_scale(&Sk.vector, 1.0 / m);
 
-    kjg_gsl_evec_fprintf(fh_evec, &Sk.vector, &Vk.matrix, "%g");
+    kjg_gsl_evec_fprintf(fh_evec, &Sk.vector, &Uk.matrix, "%g");
     gsl_matrix_free(T);
     gsl_vector_free(S);
     fclose(fh_evec);
