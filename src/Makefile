@@ -1,5 +1,5 @@
 CFLAGS=$(shell gsl-config --cflags)
-LDLIBS=$(shell gsl-config --libs-without-cblas) -lopenblas -lgfortran
+LDLIBS=$(shell gsl-config --libs-without-cblas) -lopenblas -lgfortran -lrt
 
 executables = pca fastpca fastpca-iterative
 
