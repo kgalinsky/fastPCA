@@ -111,7 +111,7 @@ int main (int argc, char **argv) {
 
     // STEP 4 - final SVD - O(N[(I+1)L]^2)
     timelog("SVD of T");
-    gsl_matrix *V = gsl_matrix_alloc(H->size1, H->size2);
+    gsl_matrix *V = gsl_matrix_alloc(H->size1, K);
     gsl_vector *S = gsl_vector_alloc(T->size2);
     {
         gsl_matrix *Vt = gsl_matrix_alloc(H->size2, H->size2);
@@ -123,7 +123,8 @@ int main (int argc, char **argv) {
                 &U, m, Vt->data, Vt->tda, work);
         free(work);
 
-        gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, H, Vt, 0, V);
+        gsl_matrix_view Vtk = gsl_matrix_submatrix(Vt, 0, 0, Vt->size1, K);
+        gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, H, &Vtk.matrix, 0, V);
         gsl_matrix_free(Vt);
     }
 
@@ -133,7 +134,6 @@ int main (int argc, char **argv) {
     timelog("Output");
     gsl_matrix_view Uk = gsl_matrix_submatrix(T, 0, 0, T->size1, K);
     gsl_vector_view Sk = gsl_vector_subvector(S, 0, K);
-    gsl_matrix_view Vk = gsl_matrix_submatrix(V, 0, 0, V->size1, K);
     gsl_vector_mul(&Sk.vector, &Sk.vector);
     gsl_vector_scale(&Sk.vector, 1.0 / m);
 
@@ -142,7 +142,7 @@ int main (int argc, char **argv) {
     gsl_vector_free(S);
     fclose(fh_evec);
 
-    kjg_gsl_matrix_fprintf(fh_pcs, &Vk.matrix, "%g");
+    kjg_gsl_matrix_fprintf(fh_pcs, V, "%g");
     gsl_matrix_free(V);
     fclose(fh_pcs);
 
