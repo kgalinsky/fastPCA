@@ -14,7 +14,6 @@
 #include "gsl/gsl_matrix.h"
 #include "gsl/gsl_vector.h"
 #include "gsl/gsl_linalg.h"
-#include "gsl/gsl_blas.h"
 
 #include "kjg_geno.h"
 #include "kjg_genoIO.h"
@@ -59,8 +58,6 @@ int main (int argc, char **argv) {
     gsl_matrix *H  = gsl_matrix_alloc(m, (I+1)*L);
 
     FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
-    FILE *fh_pcs  = kjg_fopen_suffix(OUTPUT_PREFIX, "pcs", "w");
-    FILE *fh_mus  = kjg_fopen_suffix(OUTPUT_PREFIX, "mus", "w");
 
     // PREP - read genotype file into memory
     sprintf(message, "Reading geno (%dx%d)", m, n);
@@ -99,52 +96,33 @@ int main (int argc, char **argv) {
     gsl_matrix *T  = gsl_matrix_alloc(n, H->size2);
     kjg_fpca_XTH(X, M, H, T);
     kjg_geno_free(X);
-
-    {
-        size_t i;
-        for (i = 0; i < m; i++) {
-            fprintf(fh_mus, "%g\n", M[m]);
-        }
-    }
     free(M);
-    fclose(fh_mus);
+    gsl_matrix_free(H);
 
     // STEP 4 - final SVD - O(N[(I+1)L]^2)
     timelog("SVD of T");
-    gsl_matrix *V = gsl_matrix_alloc(H->size1, K);
     gsl_vector *S = gsl_vector_alloc(T->size2);
     {
-        gsl_matrix *Vt = gsl_matrix_alloc(H->size2, H->size2);
         size_t lwork = 5*(T->size1 + T->size2);
         double *work = malloc(sizeof(double)*lwork);
-        double U;
-        int info = LAPACKE_dgesvd(101, 'O', 'A',
+        double U, V;
+        int info = LAPACKE_dgesvd(101, 'O', 'N',
                 T->size1, T->size2, T->data, T->tda, S->data,
-                &U, m, Vt->data, Vt->tda, work);
+                &U, m, &V, m, work);
         free(work);
-
-        gsl_matrix_view Vtk = gsl_matrix_submatrix(Vt, 0, 0, Vt->size1, K);
-        gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, H, &Vtk.matrix, 0, V);
-        gsl_matrix_free(Vt);
     }
-
-    gsl_matrix_free(H);
 
     // STEP 5 - output top K principle components
     timelog("Output");
-    gsl_matrix_view Uk = gsl_matrix_submatrix(T, 0, 0, T->size1, K);
+    gsl_matrix_view Vk = gsl_matrix_submatrix(T, 0, 0, T->size1, K);
     gsl_vector_view Sk = gsl_vector_subvector(S, 0, K);
     gsl_vector_mul(&Sk.vector, &Sk.vector);
     gsl_vector_scale(&Sk.vector, 1.0 / m);
 
-    kjg_gsl_evec_fprintf(fh_evec, &Sk.vector, &Uk.matrix, "%g");
+    kjg_gsl_evec_fprintf(fh_evec, &Sk.vector, &Vk.matrix, "%g");
     gsl_matrix_free(T);
     gsl_vector_free(S);
     fclose(fh_evec);
-
-    kjg_gsl_matrix_fprintf(fh_pcs, V, "%g");
-    gsl_matrix_free(V);
-    fclose(fh_pcs);
 
     timelog("Done");
     return(0);
