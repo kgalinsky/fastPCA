@@ -19,9 +19,22 @@ void main (int argc, char **argv) {
     FILE *fh_evec = fopen(argv[1], "r");
     FILE *fh_geno = fopen(argv[2], "r");
 
-    size_t k = 5;
-    size_t n = 2000;
-    size_t m = 10000;
+    size_t k = 1;
+    {
+        char c;
+
+        while (1) {
+            c = getc(fh_evec);
+            if      (c == '\t') k++;
+            else if (c == ' ')  k++;
+            else if (c == '\n') break;
+        }
+
+        fseek(fh_evec, 0, SEEK_SET);
+    }
+
+    size_t n = kjg_genoIO_num_ind(fh_geno);
+    size_t m = kjg_genoIO_num_snp(fh_geno, n);
 
     gsl_vector *eval    = gsl_vector_alloc(k);
     gsl_matrix *evec    = gsl_matrix_alloc(n, k);
