@@ -39,7 +39,6 @@ void main (int argc, char **argv) {
     gsl_vector *eval    = gsl_vector_alloc(k);
     gsl_matrix *evec    = gsl_matrix_alloc(n, k);
     gsl_matrix *weights = gsl_matrix_alloc(m, k);
-    gsl_matrix *Sigma   = gsl_matrix_calloc(k, k);
 
     kjg_geno *X  = kjg_geno_alloc(m, n);
     double *M = malloc(sizeof(double)*m);
