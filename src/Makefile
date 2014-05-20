@@ -1,7 +1,7 @@
 CFLAGS=$(shell gsl-config --cflags)
 LDLIBS=$(shell gsl-config --libs-without-cblas) -lopenblas -lgfortran -lrt
 
-executables = pca fastpca fastpca-iterative evec2weights
+executables = pca fastpca fastpca-iterative evec2weights project_weights
 
 all: $(executables)
 
@@ -15,6 +15,8 @@ fastpca: fastpca.o kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_util.o kjg_fpca.o
 fastpca-iterative: fastpca-iterative.o kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_util.o kjg_fpca.o
 
 evec2weights: evec2weights.o kjg_gsl.o kjg_geno.o kjg_genoIO.o kjg_fpca.o
+
+project_weights: project_weights.o kjg_gsl.o kjg_geno.o kjg_genoIO.o kjg_fpca.o
 
 clean:
 	rm -rf *.o $(executables)
