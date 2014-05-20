@@ -30,6 +30,17 @@ void kjg_gsl_matrix_fprintf(FILE* stream, gsl_matrix* m, const char* template) {
     }
 }
 
+void kjg_gsl_matrix_fscanf(FILE* stream, gsl_matrix* m) {
+    size_t i, j;
+    double x;
+    for (i = 0; i < m->size1; i++) {
+        for (j = 0; j < m->size2; j++) {
+            fscanf(stream, "%lg", &x);
+            gsl_matrix_set(m, i, j, x);
+        }
+    }
+}
+
 void kjg_gsl_evec_fprintf(FILE* stream, gsl_vector* eval, gsl_matrix* evec,
         const char* template) {
     size_t i, j;
@@ -41,6 +52,32 @@ void kjg_gsl_evec_fprintf(FILE* stream, gsl_vector* eval, gsl_matrix* evec,
     }
     fprintf(stream, "\n");
     kjg_gsl_matrix_fprintf(stream, evec, template);
+}
+
+int kjg_gsl_evec_fscanf(FILE* stream, gsl_vector* eval, gsl_matrix* evec) {
+    size_t i, j;
+    int r;
+    double x;
+
+    r = fscanf(stream, "#%lg", &x);
+    if (r != 1) return (r);
+    gsl_vector_set(eval, 0, x);
+
+    for (i = 1; i < eval->size; i++) {
+        r = fscanf(stream, "%lg", &x);
+        if (r != 1) return(r);
+        gsl_vector_set(eval, i, x);
+    }
+
+    for (i = 0; i < evec->size1; i++) {
+        for (j = 0; j < evec->size2; j++) {
+            r = fscanf(stream, "%lg", &x);
+            if (r != 1) return(r);
+            gsl_matrix_set(evec, i, j, x);
+        }
+    }
+
+    return (0);
 }
 
 gsl_rng *kjg_gsl_rng_init() {

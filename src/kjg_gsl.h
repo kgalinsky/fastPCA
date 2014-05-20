@@ -22,6 +22,7 @@
 
 void kjg_gsl_matrix_fprintf(FILE* stream, gsl_matrix* m, const char* template);
 
+
 /**
  * Print the eigenvalues and then eigenvectors below
  *
@@ -31,6 +32,9 @@ void kjg_gsl_matrix_fprintf(FILE* stream, gsl_matrix* m, const char* template);
  * @param *template character template for fprintf */
 
 void kjg_gsl_evec_fprintf(FILE* stream, gsl_vector* eval, gsl_matrix* evec, const char* template);
+
+void kjg_gsl_matrix_fscanf(FILE* stream, gsl_matrix* m);
+int kjg_gsl_evec_fscanf(FILE* stream, gsl_vector* eval, gsl_matrix* evec);
 
 /**
  * Initialize random number generation.
