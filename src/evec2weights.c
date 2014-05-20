@@ -72,5 +72,5 @@ void main (int argc, char **argv) {
 
     printf("Printing weights\n");
     FILE *fh_weight = fopen(argv[3], "w");
-    kjg_gsl_matrix_fprintf(fh_weight, weights, "%g");
+    kjg_gsl_evec_fprintf(fh_weight, eval, weights, "%g");
 }
