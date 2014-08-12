@@ -105,6 +105,14 @@ double kjg_gsl_dlange(const char norm, const gsl_matrix* m) {
     return(LAPACKE_dlange(LAPACK_ROW_MAJOR, norm, m->size1, m->size2, m->data, m->tda));
 }
 
+int kjg_gsl_dgeqrf(gsl_matrix *m, gsl_vector *tau) {
+    return(LAPACKE_dgeqrf( LAPACK_ROW_MAJOR, m->size1, m->size2, m->data, m->tda, tau->data ));
+}
+
+int kjg_gsl_dorgqr(gsl_matrix *m, gsl_vector *tau) {
+    return(LAPACKE_dorgqr( LAPACK_ROW_MAJOR, m->size2, m->size2, m->size2, m->data, m->tda, tau->data));
+}
+
 void kjg_gsl_matrix_set_ran_ugaussian(gsl_matrix* m, const gsl_rng* r) {
     size_t i, j;
     double x, y, r2;
@@ -124,4 +132,16 @@ void kjg_gsl_matrix_set_ran_ugaussian(gsl_matrix* m, const gsl_rng* r) {
             gsl_matrix_set(m, i, j+1, y*r2);
         }
     }
+}
+
+/**
+ * Perform the QR decomposition on the matrix and return Q
+ *
+ * @param *m matrix to orthogonalize
+ */
+void kjg_gsl_matrix_QR(gsl_matrix* m) {
+    gsl_vector* tau = gsl_vector_alloc(m->size2);
+    kjg_gsl_dgeqrf(m, tau);
+    kjg_gsl_dorgqr(m, tau);
+    gsl_vector_free(tau);
 }
