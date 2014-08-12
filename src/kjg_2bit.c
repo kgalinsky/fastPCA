@@ -1,5 +1,7 @@
 #include "kjg_2bit.h"
 
+#include <string.h>
+
 void kjg_2bit_pack(const size_t n, const uint8_t* unpacked, uint8_t* packed) {
     size_t i, j = 0;
     for (i = 3; i < n; i += 7) {

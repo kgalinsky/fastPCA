@@ -3,8 +3,8 @@
  * @brief Packs/unpacks arrays of 2-bit integers
  */
 
+#include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 
 #define U1(n)     n,            n+1,              n+2,              n+3
 #define U2(n) U1(n),      U1(n+256),      U1(n+256*2),      U1(n+256*3)
