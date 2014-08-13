@@ -59,3 +59,11 @@ size_t kjg_2bit_pack(const size_t n, const uint8_t* unpacked, uint8_t* packed) {
 
 	return (j);
 }
+
+static uint8_t kjg_2bit_pack_unit(const uint8_t* unpacked) {
+	return (PACK_LOOKUP[unpacked[3]][unpacked[2]][unpacked[1]][unpacked[0]]);
+}
+
+static size_t kjg_2bit_packed_tda(const size_t n) {
+	return ((n + 3) / 4);
+}
