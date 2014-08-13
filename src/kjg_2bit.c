@@ -23,17 +23,39 @@ static const uint32_t UNPACK_LOOKUP[256] = {
 // pack lookup array (faster than running PACK)
 static const uint8_t PACK_LOOKUP[4][4][4][4] = { P3(0), P3(1), P3(2), P3(3) };
 
-void kjg_2bit_pack(const size_t n, const uint8_t* unpacked, uint8_t* packed) {
-    size_t i, j = 0;
-    for (i = 3; i < n; i += 7) {
-        packed[j++] =
-                PACK_LOOKUP[unpacked[i--]][unpacked[i--]][unpacked[i--]][unpacked[i]];
-    }
+size_t kjg_2bit_unpack(const size_t n, const uint8_t* packed, uint8_t* unpacked) {
+	size_t i, j = 0;
+	for (i = 0; i < n - 4; i += 4) {
+		memcpy(&unpacked[i], &UNPACK_LOOKUP[packed[j++]], 4);
+	}
+	memcpy(&unpacked[i], &UNPACK_LOOKUP[packed[j]], n - i);
+	return (j);
 }
 
-void kjg_2bit_unpack(const size_t n, const uint8_t* packed, uint8_t* unpacked) {
-    size_t i;
-    for (i = 0; i < n; i += 4) {
-        memcpy(&unpacked[i], &UNPACK_LOOKUP[packed[i / 4]], sizeof(uint32_t));
-    }
+size_t kjg_2bit_unpack_or(const size_t n, const uint8_t* packed,
+		const uint8_t* mask, uint8_t* unpacked) {
+	size_t i, j = 0;
+	for (i = 0; i < n; i += 4) {
+		memcpy(&unpacked[i], &UNPACK_LOOKUP[packed[j] | mask[j++]],
+				sizeof(uint32_t));
+	}
+	return (j);
+}
+
+size_t kjg_2bit_pack(const size_t n, const uint8_t* unpacked, uint8_t* packed) {
+	size_t i, j = 0;
+
+	// pack the whole chunks
+	for (i = 0; i < n - 4; i += 4) {
+		packed[j++] = kjg_2bit_pack_unit(&unpacked[i]);
+	}
+
+	// pack the last chunk
+	uint8_t remainder[4] = { 0, 0, 0, 0 };
+	for (; i < n; i++) {
+		remainder[i % 4] = unpacked[i];
+	}
+	packed[j] = kjg_2bit_pack_unit(remainder);
+
+	return (j);
 }
