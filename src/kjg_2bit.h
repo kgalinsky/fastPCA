@@ -49,11 +49,11 @@ size_t kjg_2bit_pack (const size_t n, const uint8_t* unpacked, uint8_t* packed);
  * @param *unpacked array of 4 integers
  * @return Byte containing the packed integers
  */
-static uint8_t kjg_2bit_pack_unit (const uint8_t* unpacked);
+inline uint8_t kjg_2bit_pack_unit (const uint8_t* unpacked);
 
 /**
  * Determines the length of the packed array
  * @param n length of unpacked array
  * @return Length of packed array
  */
-static size_t kjg_2bit_packed_tda (const size_t n);
+inline size_t kjg_2bit_packed_tda (const size_t n);
