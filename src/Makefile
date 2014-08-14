@@ -3,6 +3,8 @@ LDLIBS=$(shell gsl-config --libs-without-cblas) -lopenblas -lgfortran -lrt
 
 executables = pca fastpca fastpca-iterative evec2weights project_weights
 
+.PHONY: all debug clean
+
 all: $(executables)
 
 debug: CFLAGS+=-g
