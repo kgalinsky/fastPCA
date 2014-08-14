@@ -21,7 +21,7 @@
  * @param *stream file pointer object for geno file
  * @return number of individuals
  */
-size_t kjg_genoIO_num_ind(FILE* stream);
+size_t kjg_genoIO_num_ind (FILE* stream);
 
 /**
  * Determine the number of SNPs in a geno file.
@@ -30,7 +30,7 @@ size_t kjg_genoIO_num_ind(FILE* stream);
  * @param n number of individuals
  * @return number of SNPs
  */
-size_t kjg_genoIO_num_snp(FILE* stream, size_t n);
+size_t kjg_genoIO_num_snp (FILE* stream, size_t n);
 
 /**
  * Convert a character buffer to geno.
@@ -39,7 +39,7 @@ size_t kjg_genoIO_num_snp(FILE* stream, size_t n);
  * @param *x genotype array
  * @param n number of individuals
  */
-void kjg_genoIO_char2int(const char* buffer, uint8_t* x, const size_t n);
+void kjg_genoIO_char2int (const char* buffer, uint8_t* x, const size_t n);
 
 /**
  * Read line from genotype file.
@@ -50,7 +50,7 @@ void kjg_genoIO_char2int(const char* buffer, uint8_t* x, const size_t n);
  * @param *stream genotype file object
  * @return number of characters read (should be n+1)
  */
-size_t kjg_genoIO_fread(char* buffer, uint8_t* x, const size_t n, FILE* stream);
+size_t kjg_genoIO_fread (char* buffer, uint8_t* x, const size_t n, FILE* stream);
 
 /**
  * Read geno file into struct
@@ -59,6 +59,6 @@ size_t kjg_genoIO_fread(char* buffer, uint8_t* x, const size_t n, FILE* stream);
  * @param *stream genotype file object
  */
 
-void kjg_genoIO_fread_geno(kjg_geno* g, FILE* stream);
+void kjg_genoIO_fread_geno (kjg_geno* g, FILE* stream);
 
 #endif /* KJG_GENOIO_H_ */

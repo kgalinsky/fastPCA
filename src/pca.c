@@ -23,19 +23,27 @@ size_t K = 10;
 char *GENO_FILENAME, *OUTPUT_PREFIX;
 
 // argument parsing
-void parse_args(int argc, char **argv);
+void parse_args (int argc, char **argv);
 extern int opterr, optopt, optind;
 extern char *optarg;
 
 // helper functions
-void scale_evals(double* evals, const size_t n);
-void fprintf_evals(FILE* fh_eval, const char* format, const double* evals, const size_t n);
-void fprintf_evecs(FILE* fh_evec, const char* format,
-        const double* evals, const double* evecs,
-        const size_t n, const size_t K);
+void scale_evals (double* evals, const size_t n);
+void fprintf_evals (
+        FILE* fh_eval,
+        const char* format,
+        const double* evals,
+        const size_t n);
+void fprintf_evecs (
+        FILE* fh_evec,
+        const char* format,
+        const double* evals,
+        const double* evecs,
+        const size_t n,
+        const size_t K);
 
 // MAIN FUNCTION
-int main(int argc, char** argv) {
+int main (int argc, char** argv) {
     parse_args(argc, argv);
 
     FILE *fh_geno = fopen(GENO_FILENAME, "r");
@@ -48,8 +56,8 @@ int main(int argc, char** argv) {
     double* GRM = kjg_GRM_init(n);
 
     {
-        char* buffer = malloc(sizeof(char)*(n+1));
-        uint8_t* x   = malloc(sizeof(uint8_t)*n);
+        char* buffer = malloc(sizeof(char) * (n + 1));
+        uint8_t* x = malloc(sizeof(uint8_t) * n);
 
         size_t i;
         for (i = 0; i < m; i++) {
@@ -61,10 +69,10 @@ int main(int argc, char** argv) {
         free(x);
     }
 
-    double* evals = malloc(sizeof(double)*n);   // eigenvalues
-    double* evecs = malloc(sizeof(double)*n*n); // eigenvectors
+    double* evals = malloc(sizeof(double) * n);   // eigenvalues
+    double* evecs = malloc(sizeof(double) * n * n); // eigenvectors
 
-    LAPACKE_dspevd(LAPACK_COL_MAJOR, 'V', 'L', n, GRM, evals, evecs, n );
+    LAPACKE_dspevd(LAPACK_COL_MAJOR, 'V', 'L', n, GRM, evals, evecs, n);
 
     free(GRM);
 
@@ -75,7 +83,7 @@ int main(int argc, char** argv) {
     free(evals);
     free(evecs);
 
-    return(0);
+    return (0);
 }
 
 void parse_args (int argc, char **argv) {
@@ -113,7 +121,7 @@ void parse_args (int argc, char **argv) {
     }
 }
 
-void scale_evals(double* evals, const size_t n) {
+void scale_evals (double* evals, const size_t n) {
     size_t i;
     double sum = 0;
     for (i = 0; i < n; i++) {
@@ -125,7 +133,11 @@ void scale_evals(double* evals, const size_t n) {
     }
 }
 
-void fprintf_evals(FILE* fh_eval, const char* format, const double* evals, const size_t n) {
+void fprintf_evals (
+        FILE* fh_eval,
+        const char* format,
+        const double* evals,
+        const size_t n) {
     size_t i;
     for (i = n; i-- > 0;) {
         fprintf(fh_eval, format, evals[i]);
@@ -133,9 +145,13 @@ void fprintf_evals(FILE* fh_eval, const char* format, const double* evals, const
     }
 }
 
-void fprintf_evecs(FILE* fh_evec, const char* format,
-        const double* evals, const double* evecs,
-        const size_t n, const size_t K) {
+void fprintf_evecs (
+        FILE* fh_evec,
+        const char* format,
+        const double* evals,
+        const double* evecs,
+        const size_t n,
+        const size_t K) {
     size_t i, j;
     fprintf(fh_evec, "#");
     fprintf(fh_evec, format, evals[n - 1]);

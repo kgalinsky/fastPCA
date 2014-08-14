@@ -16,8 +16,10 @@
  * @param opentype passed to fopen
  */
 
-FILE* kjg_fopen_suffix (const char* prefix, const char* suffix, const char* opentype);
-
+FILE* kjg_fopen_suffix (
+        const char* prefix,
+        const char* suffix,
+        const char* opentype);
 
 /**
  * Return number of seconds elapsed from two timespec structs
@@ -27,6 +29,6 @@ FILE* kjg_fopen_suffix (const char* prefix, const char* suffix, const char* open
  * @return double - seconds elapsed
  */
 
-double kjg_deltat(const struct timespec t1, const struct timespec t2);
+double kjg_deltat (const struct timespec t1, const struct timespec t2);
 
 #endif /* KJG_UTIL_H_ */

@@ -1,10 +1,3 @@
-/*
- * kjg_gsl.c
- *
- *  Created on: Aug 1, 2013
- *      Author: kjg063
- */
-
 #include <stdio.h>
 #include <math.h>
 
@@ -18,7 +11,7 @@
 
 #include "kjg_gsl.h"
 
-void kjg_gsl_matrix_fprintf(FILE* stream, gsl_matrix* m, const char* template) {
+void kjg_gsl_matrix_fprintf (FILE* stream, gsl_matrix* m, const char* template) {
     size_t i, j;
     for (i = 0; i < m->size1; i++) {
         fprintf(stream, template, gsl_matrix_get(m, i, 0));
@@ -30,7 +23,7 @@ void kjg_gsl_matrix_fprintf(FILE* stream, gsl_matrix* m, const char* template) {
     }
 }
 
-void kjg_gsl_matrix_fscanf(FILE* stream, gsl_matrix* m) {
+void kjg_gsl_matrix_fscanf (FILE* stream, gsl_matrix* m) {
     size_t i, j;
     double x;
     for (i = 0; i < m->size1; i++) {
@@ -41,7 +34,10 @@ void kjg_gsl_matrix_fscanf(FILE* stream, gsl_matrix* m) {
     }
 }
 
-void kjg_gsl_evec_fprintf(FILE* stream, gsl_vector* eval, gsl_matrix* evec,
+void kjg_gsl_evec_fprintf (
+        FILE* stream,
+        gsl_vector* eval,
+        gsl_matrix* evec,
         const char* template) {
     size_t i, j;
     fprintf(stream, "#");
@@ -54,7 +50,7 @@ void kjg_gsl_evec_fprintf(FILE* stream, gsl_vector* eval, gsl_matrix* evec,
     kjg_gsl_matrix_fprintf(stream, evec, template);
 }
 
-int kjg_gsl_evec_fscanf(FILE* stream, gsl_vector* eval, gsl_matrix* evec) {
+int kjg_gsl_evec_fscanf (FILE* stream, gsl_vector* eval, gsl_matrix* evec) {
     size_t i, j;
     int r;
     double x;
@@ -65,14 +61,14 @@ int kjg_gsl_evec_fscanf(FILE* stream, gsl_vector* eval, gsl_matrix* evec) {
 
     for (i = 1; i < eval->size; i++) {
         r = fscanf(stream, "%lg", &x);
-        if (r != 1) return(r);
+        if (r != 1) return (r);
         gsl_vector_set(eval, i, x);
     }
 
     for (i = 0; i < evec->size1; i++) {
         for (j = 0; j < evec->size2; j++) {
             r = fscanf(stream, "%lg", &x);
-            if (r != 1) return(r);
+            if (r != 1) return (r);
             gsl_matrix_set(evec, i, j, x);
         }
     }
@@ -80,66 +76,64 @@ int kjg_gsl_evec_fscanf(FILE* stream, gsl_vector* eval, gsl_matrix* evec) {
     return (0);
 }
 
-gsl_rng *kjg_gsl_rng_init() {
+gsl_rng *kjg_gsl_rng_init () {
     const gsl_rng_type * T;
     gsl_rng * r;
 
     gsl_rng_env_setup();
 
     T = gsl_rng_default;
-    r = gsl_rng_alloc (T);
+    r = gsl_rng_alloc(T);
 
     fprintf(stderr, "generator type: %s\n", gsl_rng_name(r));
     fprintf(stderr, "seed = %lu\n", gsl_rng_default_seed);
 
-    return(r);
+    return (r);
 }
 
-int kjg_gsl_matrix_frobenius_normalize(gsl_matrix* m) {
+int kjg_gsl_matrix_frobenius_normalize (gsl_matrix* m) {
     double s = kjg_gsl_dlange('F', m);
     double d = m->size1 * m->size2;
     return (gsl_matrix_scale(m, d / s));
 }
 
-double kjg_gsl_dlange(const char norm, const gsl_matrix* m) {
-    return(LAPACKE_dlange(LAPACK_ROW_MAJOR, norm, m->size1, m->size2, m->data, m->tda));
+double kjg_gsl_dlange (const char norm, const gsl_matrix* m) {
+    return (LAPACKE_dlange(LAPACK_ROW_MAJOR, norm, m->size1, m->size2, m->data,
+            m->tda));
 }
 
-int kjg_gsl_dgeqrf(gsl_matrix *m, gsl_vector *tau) {
-    return(LAPACKE_dgeqrf( LAPACK_ROW_MAJOR, m->size1, m->size2, m->data, m->tda, tau->data ));
+int kjg_gsl_dgeqrf (gsl_matrix *m, gsl_vector *tau) {
+    return (LAPACKE_dgeqrf( LAPACK_ROW_MAJOR, m->size1, m->size2, m->data,
+            m->tda, tau->data));
 }
 
-int kjg_gsl_dorgqr(gsl_matrix *m, gsl_vector *tau) {
-    return(LAPACKE_dorgqr( LAPACK_ROW_MAJOR, m->size2, m->size2, m->size2, m->data, m->tda, tau->data));
+int kjg_gsl_dorgqr (gsl_matrix *m, gsl_vector *tau) {
+    return (LAPACKE_dorgqr( LAPACK_ROW_MAJOR, m->size2, m->size2, m->size2,
+            m->data, m->tda, tau->data));
 }
 
-void kjg_gsl_matrix_set_ran_ugaussian(gsl_matrix* m, const gsl_rng* r) {
+void kjg_gsl_matrix_set_ran_ugaussian (gsl_matrix* m, const gsl_rng* r) {
     size_t i, j;
     double x, y, r2;
     for (i = 0; i < m->size1; i++) {
-        for (j = 0; j < m->size2; j+=2) {
+        for (j = 0; j < m->size2; j += 2) {
             do {
                 /* choose x,y in uniform square (-1,-1) to (+1,+1) */
-                x = -1 + 2 * gsl_rng_uniform_pos (r);
-                y = -1 + 2 * gsl_rng_uniform_pos (r);
+                x = -1 + 2 * gsl_rng_uniform_pos(r);
+                y = -1 + 2 * gsl_rng_uniform_pos(r);
 
                 /* see if it is in the unit circle */
                 r2 = x * x + y * y;
             } while (r2 > 1.0 || r2 == 0);
-            r2 = sqrt (-2.0 * log (r2) / r2);
+            r2 = sqrt(-2.0 * log(r2) / r2);
 
-            gsl_matrix_set(m, i, j, x*r2);
-            gsl_matrix_set(m, i, j+1, y*r2);
+            gsl_matrix_set(m, i, j, x * r2);
+            gsl_matrix_set(m, i, j + 1, y * r2);
         }
     }
 }
 
-/**
- * Perform the QR decomposition on the matrix and return Q
- *
- * @param *m matrix to orthogonalize
- */
-void kjg_gsl_matrix_QR(gsl_matrix* m) {
+void kjg_gsl_matrix_QR (gsl_matrix* m) {
     gsl_vector* tau = gsl_vector_alloc(m->size2);
     kjg_gsl_dgeqrf(m, tau);
     kjg_gsl_dorgqr(m, tau);

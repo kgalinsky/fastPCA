@@ -17,11 +17,7 @@
  * @param *template character template for fprintf
  */
 
-void kjg_gsl_matrix_fprintf(
-        FILE* stream,
-        gsl_matrix* m,
-        const char* template
-        );
+void kjg_gsl_matrix_fprintf (FILE* stream, gsl_matrix* m, const char* template);
 
 /**
  * Prints the eigenvalues and then eigenvectors below
@@ -30,12 +26,11 @@ void kjg_gsl_matrix_fprintf(
  * @param *evec eigenvectors
  * @param *template character template for fprintf */
 
-void kjg_gsl_evec_fprintf(
+void kjg_gsl_evec_fprintf (
         FILE* stream,
         gsl_vector* eval,
         gsl_matrix* evec,
-        const char* template
-        );
+        const char* template);
 
 /**
  * Reads a matrix
@@ -43,7 +38,7 @@ void kjg_gsl_evec_fprintf(
  * @param *m matrix to store
  */
 
-void kjg_gsl_matrix_fscanf(FILE* stream, gsl_matrix* m);
+void kjg_gsl_matrix_fscanf (FILE* stream, gsl_matrix* m);
 
 /**
  * Reads an evec
@@ -52,13 +47,13 @@ void kjg_gsl_matrix_fscanf(FILE* stream, gsl_matrix* m);
  * @param *evec eigenvectors matrix
  */
 
-int kjg_gsl_evec_fscanf(FILE* stream, gsl_vector* eval, gsl_matrix* evec);
+int kjg_gsl_evec_fscanf (FILE* stream, gsl_vector* eval, gsl_matrix* evec);
 
 /**
  * Initializes random number generation.
  */
 
-gsl_rng *kjg_gsl_rng_init();
+gsl_rng *kjg_gsl_rng_init ();
 
 /**
  * Initializes the matrix with random unit gaussians
@@ -66,7 +61,7 @@ gsl_rng *kjg_gsl_rng_init();
  * @param *r random number generator
  */
 
-void kjg_gsl_matrix_set_ran_ugaussian(gsl_matrix* m, const gsl_rng* r);
+void kjg_gsl_matrix_set_ran_ugaussian (gsl_matrix* m, const gsl_rng* r);
 
 /**
  * Normalizes the matrix so the Frobenius norm is M*N
@@ -74,7 +69,7 @@ void kjg_gsl_matrix_set_ran_ugaussian(gsl_matrix* m, const gsl_rng* r);
  * @return if error
  */
 
-int kjg_gsl_matrix_frobenius_normalize(gsl_matrix* m);
+int kjg_gsl_matrix_frobenius_normalize (gsl_matrix* m);
 
 /**
  * Calculates the norm of a matrix
@@ -83,14 +78,14 @@ int kjg_gsl_matrix_frobenius_normalize(gsl_matrix* m);
  * @return norm
  */
 
-double kjg_gsl_dlange(const char norm, const gsl_matrix* m);
+double kjg_gsl_dlange (const char norm, const gsl_matrix* m);
 
 /**
  * Performs the QR decomposition on the matrix and return Q in the matrix
  * @param *m matrix to orthogonalize
-  */
+ */
 
-void kjg_gsl_matrix_QR(gsl_matrix* m);
+void kjg_gsl_matrix_QR (gsl_matrix* m);
 
 /**
  * Calls LAPACK dgeqrf and return R and compacted Q matrix
@@ -98,13 +93,13 @@ void kjg_gsl_matrix_QR(gsl_matrix* m);
  * @param *tau see LAPACK documentation
  */
 
-int kjg_gsl_dgeqrf(gsl_matrix *m, gsl_vector *tau);
+int kjg_gsl_dgeqrf (gsl_matrix *m, gsl_vector *tau);
 
 /**
  * Calls LAPACK dorgqr to extract Q matrix
  * @param *m matrix with compacted Q and will store unpacked Q
  * @param *tau see LAPACK documentation
  */
-int kjg_gsl_dorgqr(gsl_matrix *m, gsl_vector *tau);
+int kjg_gsl_dorgqr (gsl_matrix *m, gsl_vector *tau);
 
 #endif /* KJG_GSL_H_ */

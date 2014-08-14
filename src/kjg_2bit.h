@@ -17,7 +17,10 @@
  * @return length of packed array
  */
 
-size_t kjg_2bit_unpack(const size_t n, const uint8_t* packed, uint8_t* unpacked);
+size_t kjg_2bit_unpack (
+        const size_t n,
+        const uint8_t* packed,
+        uint8_t* unpacked);
 /**
  * Unpacks a 4-integer-per-byte array with a bitwise "or" mask
  * @param n number of integers
@@ -26,8 +29,11 @@ size_t kjg_2bit_unpack(const size_t n, const uint8_t* packed, uint8_t* unpacked)
  * @param *unpacked array to store unpacked integers
  * @return length of packed array
  */
-size_t kjg_2bit_unpack_or(const size_t n, const uint8_t* packed,
-		const uint8_t* mask, uint8_t* unpacked);
+size_t kjg_2bit_unpack_or (
+        const size_t n,
+        const uint8_t* packed,
+        const uint8_t* mask,
+        uint8_t* unpacked);
 
 /**
  * Packs an array of integers into 4-integer-per-byte array
@@ -36,18 +42,18 @@ size_t kjg_2bit_unpack_or(const size_t n, const uint8_t* packed,
  * @param *packed array to store packed integers
  * @return length of packed array
  */
-size_t kjg_2bit_pack(const size_t n, const uint8_t* unpacked, uint8_t* packed);
+size_t kjg_2bit_pack (const size_t n, const uint8_t* unpacked, uint8_t* packed);
 
 /**
  * Packs an array of 4 integers into one byte
  * @param *unpacked array of 4 integers
  * @return Byte containing the packed integers
  */
-static uint8_t kjg_2bit_pack_unit(const uint8_t* unpacked);
+static uint8_t kjg_2bit_pack_unit (const uint8_t* unpacked);
 
 /**
  * Determines the length of the packed array
  * @param n length of unpacked array
  * @return Length of packed array
  */
-static size_t kjg_2bit_packed_tda(const size_t n);
+static size_t kjg_2bit_packed_tda (const size_t n);

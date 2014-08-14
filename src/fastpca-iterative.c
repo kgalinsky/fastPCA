@@ -28,7 +28,7 @@ size_t L = 10;
 char *GENO_FILENAME, *OUTPUT_PREFIX;
 
 // argument parsing
-void parse_args(int argc, char **argv);
+void parse_args (int argc, char **argv);
 extern int opterr, optopt, optind;
 extern char *optarg;
 
@@ -41,17 +41,17 @@ int main (int argc, char **argv) {
     size_t n = kjg_genoIO_num_ind(fh_geno);
     size_t m = kjg_genoIO_num_snp(fh_geno, n);
 
-    kjg_geno *X  = kjg_geno_alloc(m, n);
-    double *M    = malloc(sizeof(double)*m);
+    kjg_geno *X = kjg_geno_alloc(m, n);
+    double *M = malloc(sizeof(double) * m);
 
-    gsl_rng *r    = kjg_gsl_rng_init();
+    gsl_rng *r = kjg_gsl_rng_init();
     gsl_matrix *G = gsl_matrix_alloc(n, L);
-    gsl_matrix *H = gsl_matrix_alloc(m, (I+1)*L);
+    gsl_matrix *H = gsl_matrix_alloc(m, (I + 1) * L);
     gsl_matrix *X1;
     gsl_matrix *V1;
     gsl_vector *S1;
     gsl_vector *work1;
-    gsl_matrix *Q  = gsl_matrix_alloc(m, (I+1)*L);
+    gsl_matrix *Q = gsl_matrix_alloc(m, (I + 1) * L);
     gsl_matrix *T;
     gsl_matrix *X2;
     gsl_matrix *W;
@@ -78,14 +78,16 @@ int main (int argc, char **argv) {
     for (i = 0; i <= I; i += J) {
         fprintf(fh_evec, "#%d\n", J);
         // STEP 2P - copy H to Q
-        gsl_matrix_const_view Hv = gsl_matrix_const_submatrix(H, 0, 0, H->size1, (i+1)*L);
-        gsl_matrix_view Qv = gsl_matrix_submatrix(Q, 0, 0, Q->size1, (i+1)*L);
+        gsl_matrix_const_view Hv = gsl_matrix_const_submatrix(H, 0, 0, H->size1,
+                (i + 1) * L);
+        gsl_matrix_view Qv = gsl_matrix_submatrix(Q, 0, 0, Q->size1,
+                (i + 1) * L);
         gsl_matrix_memcpy(&Qv.matrix, &Hv.matrix);
 
         // STEP 2 - supposed to be pivoted QR, but can't figure it out - O(M[(I+1)L)]^2)
-        X1    = gsl_matrix_alloc(Qv.matrix.size2, Qv.matrix.size2);
-        V1    = gsl_matrix_alloc(Qv.matrix.size2, Qv.matrix.size2);
-        S1    = gsl_vector_alloc(Qv.matrix.size2);
+        X1 = gsl_matrix_alloc(Qv.matrix.size2, Qv.matrix.size2);
+        V1 = gsl_matrix_alloc(Qv.matrix.size2, Qv.matrix.size2);
+        S1 = gsl_vector_alloc(Qv.matrix.size2);
         work1 = gsl_vector_alloc(Qv.matrix.size2);
         gsl_linalg_SV_decomp_mod(&Qv.matrix, X1, V1, S1, work1);
         gsl_matrix_free(X1);
@@ -94,13 +96,13 @@ int main (int argc, char **argv) {
         gsl_vector_free(work1);
 
         // STEP 3 - O(MN(I+1)L)
-        T  = gsl_matrix_alloc(n, Qv.matrix.size2);
+        T = gsl_matrix_alloc(n, Qv.matrix.size2);
         kjg_fpca_XTH(X, M, &Qv.matrix, T);
         free(M);
 
         // STEP 4 - final SVD
         X2 = gsl_matrix_alloc(T->size2, T->size2);
-        W  = gsl_matrix_alloc(T->size2, T->size2);
+        W = gsl_matrix_alloc(T->size2, T->size2);
         S2 = gsl_vector_alloc(T->size2);
         work2 = gsl_vector_alloc(T->size2);
         gsl_linalg_SV_decomp_mod(T, X2, W, S2, work2);
@@ -118,7 +120,7 @@ int main (int argc, char **argv) {
         gsl_vector_free(S2);
     }
     kjg_geno_free(X);
-    return(0);
+    return (0);
 }
 
 void parse_args (int argc, char **argv) {

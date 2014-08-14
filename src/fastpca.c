@@ -30,14 +30,14 @@ size_t K = 5;
 char *GENO_FILENAME, *OUTPUT_PREFIX;
 
 // argument parsing
-void parse_args(int argc, char **argv);
+void parse_args (int argc, char **argv);
 extern int opterr, optopt, optind;
 extern char *optarg;
 
-int timelog(const char* message);
+int timelog (const char* message);
 struct timespec t0;
 
-struct timespec elapsed();
+struct timespec elapsed ();
 
 int main (int argc, char **argv) {
     clock_gettime(CLOCK_REALTIME, &t0);
@@ -50,12 +50,12 @@ int main (int argc, char **argv) {
     size_t n = kjg_genoIO_num_ind(fh_geno);
     size_t m = kjg_genoIO_num_snp(fh_geno, n);
 
-    kjg_geno *X  = kjg_geno_alloc(m, n);
-    double *M    = malloc(sizeof(double)*m);
+    kjg_geno *X = kjg_geno_alloc(m, n);
+    double *M = malloc(sizeof(double) * m);
 
-    gsl_rng *r    = kjg_gsl_rng_init();
-    gsl_matrix *G  = gsl_matrix_alloc(n, L);
-    gsl_matrix *H  = gsl_matrix_alloc(m, (I+1)*L);
+    gsl_rng *r = kjg_gsl_rng_init();
+    gsl_matrix *G = gsl_matrix_alloc(n, L);
+    gsl_matrix *H = gsl_matrix_alloc(m, (I + 1) * L);
 
     FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
 
@@ -79,13 +79,12 @@ int main (int argc, char **argv) {
     // STEP 2 - supposed to be pivoted QR, but can't figure it out - O(M[(I+1)L)]^2)
     timelog("SVD of H");
     {
-        size_t lwork = 5*(H->size1 + H->size2);
-        double *S    = malloc(sizeof(double)*H->size2);
-        double *work = malloc(sizeof(double)*lwork);
+        size_t lwork = 5 * (H->size1 + H->size2);
+        double *S = malloc(sizeof(double) * H->size2);
+        double *work = malloc(sizeof(double) * lwork);
         double U, V;
-        int info = LAPACKE_dgesvd(101, 'O', 'N',
-                H->size1, H->size2, H->data, H->tda,
-                S, &U, m, &V, m, work);
+        int info = LAPACKE_dgesvd(101, 'O', 'N', H->size1, H->size2, H->data,
+                H->tda, S, &U, m, &V, m, work);
         free(S);
         free(work);
     }
@@ -93,7 +92,7 @@ int main (int argc, char **argv) {
     // STEP 3 - O(MN(I+1)L)
     sprintf(message, "Computing T (%dx%d)", n, H->size2);
     timelog(message);
-    gsl_matrix *T  = gsl_matrix_alloc(n, H->size2);
+    gsl_matrix *T = gsl_matrix_alloc(n, H->size2);
     kjg_fpca_XTH(X, M, H, T);
     kjg_geno_free(X);
     free(M);
@@ -103,12 +102,11 @@ int main (int argc, char **argv) {
     timelog("SVD of T");
     gsl_vector *S = gsl_vector_alloc(T->size2);
     {
-        size_t lwork = 5*(T->size1 + T->size2);
-        double *work = malloc(sizeof(double)*lwork);
+        size_t lwork = 5 * (T->size1 + T->size2);
+        double *work = malloc(sizeof(double) * lwork);
         double U, V;
-        int info = LAPACKE_dgesvd(101, 'O', 'N',
-                T->size1, T->size2, T->data, T->tda, S->data,
-                &U, m, &V, m, work);
+        int info = LAPACKE_dgesvd(101, 'O', 'N', T->size1, T->size2, T->data,
+                T->tda, S->data, &U, m, &V, m, work);
         free(work);
     }
 
@@ -125,7 +123,7 @@ int main (int argc, char **argv) {
     fclose(fh_evec);
 
     timelog("Done");
-    return(0);
+    return (0);
 }
 
 void parse_args (int argc, char **argv) {
@@ -177,12 +175,12 @@ void parse_args (int argc, char **argv) {
     }
 }
 
-int timelog(const char* message) {
+int timelog (const char* message) {
     struct timespec ts = elapsed();
-    return(printf("[%06d.%09d] %s\n", ts.tv_sec, ts.tv_nsec, message));
+    return (printf("[%06d.%09d] %s\n", ts.tv_sec, ts.tv_nsec, message));
 }
 
-struct timespec elapsed() {
+struct timespec elapsed () {
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
     if (ts.tv_nsec < t0.tv_nsec) {
@@ -190,5 +188,5 @@ struct timespec elapsed() {
         ts.tv_sec--;
     }
     ts.tv_sec -= t0.tv_sec;
-    return(ts);
+    return (ts);
 }
