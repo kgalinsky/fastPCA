@@ -91,6 +91,7 @@ void kjg_gsl_matrix_QR (gsl_matrix* m);
  * Calls LAPACK dgeqrf and return R and compacted Q matrix
  * @param *m input matrix
  * @param *tau see LAPACK documentation
+ * @return LAPACK return
  */
 
 int kjg_gsl_dgeqrf (gsl_matrix *m, gsl_vector *tau);
@@ -99,7 +100,16 @@ int kjg_gsl_dgeqrf (gsl_matrix *m, gsl_vector *tau);
  * Calls LAPACK dorgqr to extract Q matrix
  * @param *m matrix with compacted Q and will store unpacked Q
  * @param *tau see LAPACK documentation
+ * @return LAPACK return
  */
 int kjg_gsl_dorgqr (gsl_matrix *m, gsl_vector *tau);
+
+/**
+ * Calls LAPACK dgesvd, keeping u (in m) and s, discarding v^T
+ * @param *m input matrix / where u is stored
+ * @param *s entries of the diagonal matrix
+ * @return LAPACK return
+ */
+int kjg_gsl_matrix_SVD(gsl_matrix* m, gsl_vector* s);
 
 #endif /* KJG_GSL_H_ */

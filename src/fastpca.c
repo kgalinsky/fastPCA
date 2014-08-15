@@ -50,14 +50,11 @@ int main (int argc, char **argv) {
     size_t n = kjg_genoIO_num_ind(fh_geno);
     size_t m = kjg_genoIO_num_snp(fh_geno, n);
 
-    kjg_geno *X = kjg_geno_alloc(m, n);
-    double *M = malloc(sizeof(double) * m);
+    kjg_geno* X = kjg_geno_alloc(m, n);
+    double* M = malloc(sizeof(double) * m);
 
-    gsl_rng *r = kjg_gsl_rng_init();
-    gsl_matrix *G = gsl_matrix_alloc(n, L);
-    gsl_matrix *H = gsl_matrix_alloc(m, (I + 1) * L);
-
-    FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
+    gsl_vector* eval = gsl_vector_alloc(K);
+    gsl_matrix* evec = gsl_matrix_alloc(n, K);
 
     // PREP - read genotype file into memory
     sprintf(message, "Reading geno (%dx%d)", m, n);
@@ -65,61 +62,13 @@ int main (int argc, char **argv) {
     kjg_genoIO_fread_geno(X, fh_geno);
     fclose(fh_geno);
 
-    // STEP 1A - generate G - O(NL)
-    sprintf(message, "Generating random matrix (%dx%d)", n, L);
-    timelog(message);
-    kjg_gsl_matrix_set_ran_ugaussian(G, r);
-
-    // STEP 1B - compute H - O(MN(I+1)L)
-    sprintf(message, "Computing H (%dx%d)", m, H->size2);
-    timelog(message);
+    // calculate the SNP means
     kjg_geno_row_means(X, M);
-    kjg_fpca_blanczos(X, M, G, H);
 
-    // STEP 2 - supposed to be pivoted QR, but can't figure it out - O(M[(I+1)L)]^2)
-    timelog("SVD of H");
-    {
-        size_t lwork = 5 * (H->size1 + H->size2);
-        double *S = malloc(sizeof(double) * H->size2);
-        double *work = malloc(sizeof(double) * lwork);
-        double U, V;
-        int info = LAPACKE_dgesvd(101, 'O', 'N', H->size1, H->size2, H->data,
-                H->tda, S, &U, m, &V, m, work);
-        free(S);
-        free(work);
-    }
+    kjg_fpca(X, M, eval, evec, L, I);
 
-    // STEP 3 - O(MN(I+1)L)
-    sprintf(message, "Computing T (%dx%d)", n, H->size2);
-    timelog(message);
-    gsl_matrix *T = gsl_matrix_alloc(n, H->size2);
-    kjg_fpca_XTH(X, M, H, T);
-    kjg_geno_free(X);
-    free(M);
-    gsl_matrix_free(H);
-
-    // STEP 4 - final SVD - O(N[(I+1)L]^2)
-    timelog("SVD of T");
-    gsl_vector *S = gsl_vector_alloc(T->size2);
-    {
-        size_t lwork = 5 * (T->size1 + T->size2);
-        double *work = malloc(sizeof(double) * lwork);
-        double U, V;
-        int info = LAPACKE_dgesvd(101, 'O', 'N', T->size1, T->size2, T->data,
-                T->tda, S->data, &U, m, &V, m, work);
-        free(work);
-    }
-
-    // STEP 5 - output top K principle components
-    timelog("Output");
-    gsl_matrix_view Vk = gsl_matrix_submatrix(T, 0, 0, T->size1, K);
-    gsl_vector_view Sk = gsl_vector_subvector(S, 0, K);
-    gsl_vector_mul(&Sk.vector, &Sk.vector);
-    gsl_vector_scale(&Sk.vector, 1.0 / m);
-
-    kjg_gsl_evec_fprintf(fh_evec, &Sk.vector, &Vk.matrix, "%g");
-    gsl_matrix_free(T);
-    gsl_vector_free(S);
+    FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
+    kjg_gsl_evec_fprintf(fh_evec, eval, evec, "%g");
     fclose(fh_evec);
 
     timelog("Done");

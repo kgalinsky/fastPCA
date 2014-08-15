@@ -80,13 +80,13 @@ gsl_rng *kjg_gsl_rng_init () {
     const gsl_rng_type * T;
     gsl_rng * r;
 
-    gsl_rng_env_setup();
+	gsl_rng_env_setup();
 
     T = gsl_rng_default;
     r = gsl_rng_alloc(T);
 
     fprintf(stderr, "generator type: %s\n", gsl_rng_name(r));
-    fprintf(stderr, "seed = %lu\n", gsl_rng_default_seed);
+	fprintf(stderr, "seed = %lu\n", gsl_rng_default_seed);
 
     return (r);
 }
@@ -138,4 +138,19 @@ void kjg_gsl_matrix_QR (gsl_matrix* m) {
     kjg_gsl_dgeqrf(m, tau);
     kjg_gsl_dorgqr(m, tau);
     gsl_vector_free(tau);
+}
+
+int kjg_gsl_matrix_SVD(gsl_matrix* m, gsl_vector* s) {
+	size_t big_enough = m->size1 + m->size2;
+	double *u, *v, *superb = malloc(big_enough*sizeof(double));
+	int info = LAPACKE_dgesvd(
+			LAPACK_ROW_MAJOR, 	// row major
+			'O',				// store U in M
+			'N',				// discard V
+			m->size1, m->size2, m->data, m->tda,
+			s->data,
+			u, big_enough, v, big_enough, superb
+	);
+	free(superb);
+	return(info);
 }

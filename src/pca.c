@@ -47,7 +47,7 @@ int main (int argc, char** argv) {
     parse_args(argc, argv);
 
     FILE *fh_geno = fopen(GENO_FILENAME, "r");
-    FILE *fh_eval = kjg_fopen_suffix(OUTPUT_PREFIX, "eval", "w");
+//    FILE *fh_eval = kjg_fopen_suffix(OUTPUT_PREFIX, "eval", "w");
     FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
 
     size_t n = kjg_genoIO_num_ind(fh_geno);
@@ -77,7 +77,7 @@ int main (int argc, char** argv) {
     free(GRM);
 
     scale_evals(evals, n);
-    fprintf_evals(fh_eval, "%g", evals, n);
+//    fprintf_evals(fh_eval, "%g", evals, n);
     fprintf_evecs(fh_evec, "%g", evals, evecs, n, K);
 
     free(evals);

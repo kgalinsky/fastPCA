@@ -56,4 +56,5 @@ inline uint8_t kjg_2bit_pack_unit (const uint8_t* unpacked);
  * @param n length of unpacked array
  * @return Length of packed array
  */
+
 inline size_t kjg_2bit_packed_tda (const size_t n);

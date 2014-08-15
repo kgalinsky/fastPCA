@@ -45,3 +45,5 @@ add_failures.pl
     add_failures.pl <filename>
 
 =head1 DESCRIPTION
+
+=cut

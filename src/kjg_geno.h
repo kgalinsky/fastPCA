@@ -1,6 +1,6 @@
 /**
  * @file kjg_geno.h
- * @brief geno object and methods to work on it
+ * @brief Data structure and methods to store genotype data
  */
 
 #ifndef KJG_GENO_H_
@@ -9,15 +9,16 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/** Data structure for genotype data */
 typedef struct {
-    const size_t m;
-    const size_t n;
-    const size_t tda;
-    uint8_t *data;
+    const size_t m;     // number of SNPs
+    const size_t n;     // number of individuals
+    const size_t tda;   // width of a packed SNP row
+    uint8_t *data;      // packed genotype data
 } kjg_geno;
 
 /**
- * Compute the mean of the genotypes.
+ * Computes the mean of the genotypes.
  * @param *x array of genotypes
  * @param n number of subjects
  * @return mean of the genotypes whose assays didn't fail
@@ -26,7 +27,7 @@ typedef struct {
 double kjg_geno_mean (const uint8_t *x, const size_t n);
 
 /**
- * Normalize genotypes.
+ * Normalizes genotypes.
  * @param *x array of genotypes
  * @param *y array to put scaled genotypes
  * @param n number of subjects
@@ -34,9 +35,8 @@ double kjg_geno_mean (const uint8_t *x, const size_t n);
  */
 
 int kjg_geno_normalize (const uint8_t *x, double *y, const size_t n);
-
 /**
- * Normalize genotypes when you already have the mean.
+ * Normalizes genotypes when you already have the mean.
  * @param m mean of the genotypes
  * @param *x array of genotypes
  * @param *y array to put scaled genotypes
@@ -51,7 +51,7 @@ int kjg_geno_normalize_m (
         const size_t n);
 
 /**
- * Remap genotypes values to doubles.
+ * Remaps genotypes values to doubles.
  * @param s array of genotype mappings
  * @param *x array of genotypes
  * @param *y array to put scaled genotypes
@@ -66,7 +66,7 @@ void kjg_geno_remap (
         const size_t n);
 
 /**
- * Compute the normalization lookup array.
+ * Computes the normalization lookup array.
  * @param m genotype mean
  * @param s[4] array to store the scale
  * @return success (0) or zero-good genos (1)
@@ -75,7 +75,7 @@ void kjg_geno_remap (
 int kjg_geno_normalization_lookup (const double m, double s[4]);
 
 /**
- * Pack genotype array
+ * Packs genotype array
  * @param *x raw genotypes
  * @param *y where to pack them
  * @param n number of genotypes
@@ -84,7 +84,7 @@ int kjg_geno_normalization_lookup (const double m, double s[4]);
 void kjg_geno_pack (const uint8_t* x, uint8_t* y, size_t n);
 
 /**
- * Unack genotype array
+ * Unacks genotype array
  * @param *x where to unpack genotypes
  * @param *y packed genotypes
  * @param n number of genotypes
@@ -93,7 +93,7 @@ void kjg_geno_pack (const uint8_t* x, uint8_t* y, size_t n);
 void kjg_geno_unpack (uint8_t* x, const uint8_t* y, size_t n);
 
 /**
- * Allocate geno struct
+ * Allocates geno struct
  * @param m rows (snps)
  * @param n columns (individuals)
  */
@@ -101,14 +101,14 @@ void kjg_geno_unpack (uint8_t* x, const uint8_t* y, size_t n);
 kjg_geno* kjg_geno_alloc (size_t m, size_t n);
 
 /**
- * Free geno struct
+ * Frees geno struct
  * @param *g geno struct to free
  */
 
 void kjg_geno_free (kjg_geno* g);
 
 /**
- * Set a row in the geno object
+ * Sets a row in the geno object
  * @param *x unpacked genotype row
  * @param *g geno object
  * @param i row index
@@ -117,7 +117,7 @@ void kjg_geno_free (kjg_geno* g);
 void kjg_geno_set_row (const uint8_t* x, kjg_geno* g, const size_t i);
 
 /**
- * Get a row in the geno object
+ * Gets a row in the geno object
  * @param *x unpacked genotype row
  * @param *g geno object
  * @param i row index
@@ -126,7 +126,7 @@ void kjg_geno_set_row (const uint8_t* x, kjg_geno* g, const size_t i);
 void kjg_geno_get_row (uint8_t* x, const kjg_geno* g, const size_t i);
 
 /**
- * Get a row and normalize it.
+ * Gets a row and normalize it.
  * @param *x unpacked genotype row
  * @param *y normalized genotype row
  * @param *g geno struct
@@ -142,7 +142,7 @@ void kjg_geno_get_normalized_row (
         const size_t i);
 
 /**
- * Get multiple row and normalized rows
+ * Gets multiple normalized rows
  * @param *x unpacked genotype row (will hold last one)
  * @param *Y normalized genotype rows
  * @param *g geno struct

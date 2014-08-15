@@ -4,6 +4,8 @@ include $(MAKE_PATH)/vars.mk
 PROJ_PATH=$(MAKE_PATH)/..
 export PATH:=$(PROJ_PATH)/src:$(PROJ_PATH)/scripts:$(PROJ_PATH)/R:$(PATH)
 
+VPATH=../eigenstrat:../fastPCA
+
 .SECONDARY:
 
 %.pca.evec %.pca.eval: $$(b1).geno
