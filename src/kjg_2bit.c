@@ -2,25 +2,55 @@
 
 #include <string.h>
 
+// unpack
+#define UNPACK(n) { (n) & 3, ((n) >> 2) & 3, ((n) >> 4) & 3, ((n) >> 6) & 3 }
+
 // macros for unpacking array generation
-#define U1(n)     n,            n+1,              n+2,              n+3
-#define U2(n) U1(n),      U1(n+256),      U1(n+256*2),      U1(n+256*3)
-#define U3(n) U2(n),    U2(n+65536),    U2(n+65536*2),    U2(n+65536*3)
+#define U1(n) UNPACK(n),    UNPACK(n | 1),    UNPACK(n | 2),    UNPACK(n | 3)
+#define U2(n)     U1(n), U1(n | (1 << 2)), U1(n | (2 << 2)), U1(n | (3 << 2))
+#define U3(n)     U2(n), U2(n | (1 << 4)), U2(n | (2 << 4)), U2(n | (3 << 4))
 
 // unpack lookup array
-static const uint32_t UNPACK_LOOKUP[256] = { U3(0), U3(16777216), U3(
-        16777216 * 2), U3(16777216 * 3) };
+static const uint8_t UNPACK_LOOKUP[256][4] =
+    { U3(0), U3((1 << 6)), U3((2 << 6)), U3((3 << 6)) };
 
 // packs 4 integers into a byte
-#define PACK(a, b, c, d) ((a*4 + b)*4 + c)*4 + d
+#define PACK(a, b, c, d) (d << 6) | (c << 4) | (b << 2) | a
 
 // macros for pack array generation
-#define P1(a, b, c)    { PACK(a,b,c,0), PACK(a,b,c,1), PACK(a,b,c,2), PACK(a,b,c,3) }
-#define P2(a, b)       {     P1(a,b,0),     P1(a,b,1),     P1(a,b,2),     P1(a,b,3) }
-#define P3(a)          {       P2(a,0),       P2(a,1),       P2(a,2),       P2(a,3) }
+#define P1(b, c, d) { PACK(0,b,c,d), PACK(1,b,c,d), PACK(2,b,c,d), PACK(3,b,c,d) }
+#define P2(c, d)    {     P1(0,c,d),     P1(1,c,d),     P1(2,c,d),     P1(3,c,d) }
+#define P3(d)       {       P2(0,d),       P2(1,d),       P2(2,d),       P2(3,d) }
 
 // pack lookup array (faster than running PACK)
 static const uint8_t PACK_LOOKUP[4][4][4][4] = { P3(0), P3(1), P3(2), P3(3) };
+
+/** Packs an array of 4 integers into one byte
+ * @param *unpacked array of 4 integers
+ * @return byte containing the packed integers
+ */
+
+inline uint8_t kjg_2bit_pack_unit (const uint8_t* unpacked) {
+    return (PACK_LOOKUP[unpacked[3]][unpacked[2]][unpacked[1]][unpacked[0]]);
+}
+
+size_t kjg_2bit_pack (const size_t n, const uint8_t* unpacked, uint8_t* packed) {
+    size_t i, j = 0;
+
+    // pack the whole chunks
+    for (i = 0; i < n - 4; i += 4) {
+        packed[j++] = kjg_2bit_pack_unit(&unpacked[i]);
+    }
+
+    // pack the last chunk
+    uint8_t remainder[4] = { 0, 0, 0, 0 };
+    for (; i < n; i++) {
+        remainder[i % 4] = unpacked[i];
+    }
+    packed[j] = kjg_2bit_pack_unit(remainder);
+
+    return (j);
+}
 
 size_t kjg_2bit_unpack (
         const size_t n,
@@ -45,28 +75,6 @@ size_t kjg_2bit_unpack_or (
                 sizeof(uint32_t));
     }
     return (j);
-}
-
-size_t kjg_2bit_pack (const size_t n, const uint8_t* unpacked, uint8_t* packed) {
-    size_t i, j = 0;
-
-    // pack the whole chunks
-    for (i = 0; i < n - 4; i += 4) {
-        packed[j++] = kjg_2bit_pack_unit(&unpacked[i]);
-    }
-
-    // pack the last chunk
-    uint8_t remainder[4] = { 0, 0, 0, 0 };
-    for (; i < n; i++) {
-        remainder[i % 4] = unpacked[i];
-    }
-    packed[j] = kjg_2bit_pack_unit(remainder);
-
-    return (j);
-}
-
-inline uint8_t kjg_2bit_pack_unit (const uint8_t* unpacked) {
-    return (PACK_LOOKUP[unpacked[3]][unpacked[2]][unpacked[1]][unpacked[0]]);
 }
 
 inline size_t kjg_2bit_packed_tda (const size_t n) {
