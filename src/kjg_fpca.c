@@ -67,7 +67,7 @@ void kjg_fpca (
     gsl_matrix* Utilda = gsl_matrix_alloc((I + 1) * L, (I + 1) * L);
     gsl_vector* Stilda = gsl_vector_alloc((I + 1) * L);
 
-    kjg_gsl_matrix_SVD(B, Utilda, Vtilda, Stilda);
+    kjg_gsl_matrix_SVD(B, Vtilda, Utilda, Stilda);
 
     gsl_matrix_view Vk = gsl_matrix_submatrix(Vtilda, 0, 0, X->n, eval->size);
     gsl_matrix_memcpy(evec, &Vk.matrix);
@@ -141,7 +141,7 @@ void kjg_svd (
     gsl_matrix* Utilda = gsl_matrix_alloc((I + 1) * L, (I + 1) * L);
     gsl_vector* Stilda = gsl_vector_alloc((I + 1) * L);
 
-    kjg_gsl_matrix_SVD(B, Utilda, Vtilda, Stilda);
+    kjg_gsl_matrix_SVD(B, Vtilda, Utilda, Stilda);
 
     gsl_matrix_view Uk = gsl_matrix_submatrix(Utilda, 0, 0, (I + 1) * L,
             S->size);

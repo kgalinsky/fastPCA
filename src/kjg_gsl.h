@@ -110,6 +110,10 @@ int kjg_gsl_dorgqr (gsl_matrix *m, gsl_vector *tau);
  * @param *s entries of the diagonal matrix
  * @return LAPACK return
  */
-int kjg_gsl_matrix_SVD(gsl_matrix* m, gsl_vector* s);
+int kjg_gsl_matrix_SVD (
+        gsl_matrix* M,
+        gsl_matrix* U,
+        gsl_matrix* V,
+        gsl_vector* S);
 
 #endif /* KJG_GSL_H_ */
