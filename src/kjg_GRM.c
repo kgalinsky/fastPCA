@@ -7,31 +7,52 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "kjg_GRM.h"
 #include "kjg_geno.h"
 
-double* kjg_GRM_init (const size_t n) {
-    double* GRM = calloc(n * (n + 1) / 2, sizeof(double));
+kjg_GRM* kjg_GRM_alloc (const kjg_geno* g) {
+    size_t n = g->n;
+    kjg_GRM pre = { g->n };
+    kjg_GRM* GRM = malloc(sizeof(kjg_GRM));
+
+    memcpy(GRM, &pre, sizeof(kjg_GRM));
+    GRM->data = calloc(n * (n + 1) / 2, sizeof(double));
+
     return (GRM);
 }
 
-int kjg_GRM_update (const uint8_t* x, double* GRM, const size_t n) {
-    double m = kjg_geno_mean(x, n);
+void kjg_GRM_free (kjg_GRM* GRM) {
+    free(GRM->data);
+    free(GRM);
+}
 
-    double s[4];
-    int r = kjg_geno_normalization_lookup(m, s);
 
-    double S[4][4];
-    kjg_GRM_lookup(s, S);
+void kjg_GRM_calc (kjg_GRM* GRM, const kjg_geno* g, const double* M) {
+    size_t i, j, k;
+    double* data;
+    uint8_t* x = malloc(g->n * sizeof(uint8_t));
 
-    size_t i, j, k = 0;
-    for (i = 0; i < n; i++) {
-        for (j = i; j < n; j++) {
-            GRM[k++] += S[x[i]][x[j]];
+    for (i = 0; i < g->m; i++) {
+        double s[4];
+        int r = kjg_geno_normalization_lookup(M[i], s);
+        if (r == 1) continue;
+
+        kjg_geno_get_row(g, i, x);
+
+        double S[4][4];
+        kjg_GRM_lookup(s, S);
+
+        data = GRM->data;
+        for (j = 0; j < GRM->n; j++) {
+            for (k = j; k < GRM->n; k++) {
+                *(data++) += S[x[j]][x[k]];
+            }
         }
     }
-    return (r);
+
+    free(x);
 }
 
 void kjg_GRM_lookup (const double s[4], double S[4][4]) {
