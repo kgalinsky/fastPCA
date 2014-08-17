@@ -65,7 +65,9 @@ int main (int argc, char **argv) {
     // calculate the SNP means
     kjg_geno_row_means(X, M);
 
+    timelog("fastPCA started");
     kjg_fpca(X, M, eval, evec, L, I);
+    timelog("fastPCA completed");
 
     FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
     kjg_gsl_evec_fprintf(fh_evec, eval, evec, "%g");
