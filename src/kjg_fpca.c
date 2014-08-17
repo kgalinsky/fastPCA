@@ -54,7 +54,18 @@ void kjg_fpca (
 
     gsl_matrix_view Qi = gsl_matrix_submatrix(Q, 0, I * L, X->m, L);
     kjg_fpca_XA(X, M, G1, &Qi.matrix);
-    kjg_gsl_matrix_QR(Q);
+
+    {
+        gsl_matrix* V = gsl_matrix_alloc(Q->size2, Q->size2);
+        gsl_vector* S = gsl_vector_alloc(Q->size2);
+
+        kjg_gsl_SVD(Q, V, S);
+
+        gsl_matrix_free(V);
+        gsl_vector_free(S);
+    }
+
+    // kjg_gsl_matrix_QR(Q); // QR decomposition is less accurate than SVD
 
     gsl_matrix_free(G1);
     gsl_matrix_free(G2);
@@ -63,13 +74,12 @@ void kjg_fpca (
     gsl_matrix* B = gsl_matrix_alloc(X->n, (I + 1) * L);
     kjg_fpca_XTB(X, M, Q, B);
 
-    gsl_matrix* Vtilda = gsl_matrix_alloc(X->n, (I + 1) * L);
     gsl_matrix* Utilda = gsl_matrix_alloc((I + 1) * L, (I + 1) * L);
     gsl_vector* Stilda = gsl_vector_alloc((I + 1) * L);
 
-    kjg_gsl_matrix_SVD(B, Vtilda, Utilda, Stilda);
+    kjg_gsl_SVD(B, Utilda, Stilda);
 
-    gsl_matrix_view Vk = gsl_matrix_submatrix(Vtilda, 0, 0, X->n, eval->size);
+    gsl_matrix_view Vk = gsl_matrix_submatrix(B, 0, 0, X->n, eval->size);
     gsl_matrix_memcpy(evec, &Vk.matrix);
 
     gsl_vector_view Sk = gsl_vector_subvector(Stilda, 0, eval->size);
@@ -80,83 +90,6 @@ void kjg_fpca (
     gsl_matrix_free(Q);
     gsl_matrix_free(B);
     gsl_matrix_free(Utilda);
-    gsl_matrix_free(Vtilda);
-    gsl_vector_free(Stilda);
-}
-
-void kjg_svd (
-        const kjg_geno* X,
-        const double* M,
-        gsl_vector* S,
-        gsl_matrix* U,
-        gsl_matrix* V,
-        size_t L,
-        size_t I) {
-
-    if (U->size1 != X->m) exit(1);
-    if (V->size1 != X->n) exit(1);
-    if (S->size != U->size2) exit(1);
-    if (S->size != V->size2) exit(1);
-    if (S->size >= L) exit(1);
-    if (I == 0) exit(1);
-
-    // PART A - compute Q such that X ~ Q * (Q^T) * X
-    gsl_matrix* G1 = gsl_matrix_alloc(X->n, L);
-    gsl_matrix* G2 = gsl_matrix_alloc(X->n, L);
-    gsl_matrix* Q = gsl_matrix_alloc(X->m, (I + 1) * L);
-    gsl_matrix* Gswap;
-
-    gsl_rng *r = kjg_gsl_rng_init();
-    kjg_gsl_matrix_set_ran_ugaussian(G1, r);
-
-    size_t i;
-    for (i = 0; i < I; i++) {
-        gsl_matrix_view Qi = gsl_matrix_submatrix(Q, 0, i * L, X->m, L);
-
-        // do the multiplication
-        kjg_fpca_XTXA(X, M, G1, &Qi.matrix, G2);
-
-        // orthonormalize (Gram-Schmidt equivalent)
-        kjg_gsl_matrix_QR(G2);
-        kjg_gsl_matrix_QR(&Qi.matrix);
-
-        Gswap = G2;
-        G2 = G1;
-        G1 = Gswap;
-    }
-
-    gsl_matrix_view Qi = gsl_matrix_submatrix(Q, 0, I * L, X->m, L);
-    kjg_fpca_XA(X, M, G1, &Qi.matrix);
-    kjg_gsl_matrix_QR(&Qi.matrix);
-    kjg_gsl_matrix_QR(Q);
-
-    gsl_matrix_free(G1);
-    gsl_matrix_free(G2);
-
-    // PART B - compute B matrix, take SVD and return
-    gsl_matrix* B = gsl_matrix_alloc(X->n, (I + 1) * L);
-    kjg_fpca_XTB(X, M, Q, B);
-
-    gsl_matrix* Vtilda = gsl_matrix_alloc(X->n, (I + 1) * L);
-    gsl_matrix* Utilda = gsl_matrix_alloc((I + 1) * L, (I + 1) * L);
-    gsl_vector* Stilda = gsl_vector_alloc((I + 1) * L);
-
-    kjg_gsl_matrix_SVD(B, Vtilda, Utilda, Stilda);
-
-    gsl_matrix_view Uk = gsl_matrix_submatrix(Utilda, 0, 0, (I + 1) * L,
-            S->size);
-    gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, Q, &Uk.matrix, 0, U);
-
-    gsl_matrix_view Vk = gsl_matrix_submatrix(Vtilda, 0, 0, X->n, S->size);
-    gsl_matrix_memcpy(V, &Vk.matrix);
-
-    gsl_vector_view Sk = gsl_vector_subvector(Stilda, 0, S->size);
-    gsl_vector_memcpy(S, &Sk.vector);
-
-    gsl_matrix_free(Q);
-    gsl_matrix_free(B);
-    gsl_matrix_free(Utilda);
-    gsl_matrix_free(Vtilda);
     gsl_vector_free(Stilda);
 }
 

@@ -140,17 +140,17 @@ void kjg_gsl_matrix_QR (gsl_matrix* m) {
     gsl_vector_free(tau);
 }
 
-int kjg_gsl_matrix_SVD (
+int kjg_gsl_SVD (
         gsl_matrix* M,
-        gsl_matrix* U,
         gsl_matrix* V,
         gsl_vector* S) {
     size_t big_enough = M->size1 + V->size2;
-    double *superb = malloc(big_enough * sizeof(double));
+    double* superb = malloc(big_enough * sizeof(double));
+    double* U;
     int info = LAPACKE_dgesvd(
             LAPACK_ROW_MAJOR, 	// row major
-            'S', 'S', M->size1, M->size2, M->data, M->tda, S->data, U->data,
-            U->tda, V->data, V->tda, superb);
+            'O', 'S', M->size1, M->size2, M->data, M->tda, S->data, U,
+            big_enough, V->data, V->tda, superb);
     free(superb);
     return (info);
 }
