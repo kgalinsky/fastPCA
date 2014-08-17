@@ -110,7 +110,7 @@ void kjg_geno_get_normalized_row (
     }
 
     const uint8_t* u = KJG_2BIT_UNPACK_LOOKUP[*p];
-    for (j = (g->tda - 1 ) * 4; j < i; j++) *(y++) = s[*(u++)];
+    for (j = (g->tda - 1 ) * 4; j < g->n; j++) *(y++) = s[*(u++)];
 }
 
 size_t kjg_geno_get_normalized_rows (
