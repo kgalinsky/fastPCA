@@ -11,6 +11,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+extern const uint8_t KJG_2BIT_UNPACK_LOOKUP[256][4];
+extern const uint8_t KJG_2BIT_PACK_LOOKUP[4][4][4][4];
+
 /** Packs an array of integers into 4-integer-per-byte array
  * @param n number of integers
  * @param *unpacked array of integers

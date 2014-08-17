@@ -15,24 +15,62 @@
 #include <stdint.h>
 #include <string.h>
 
-double kjg_geno_mean (const uint8_t *x, const size_t n) {
-    size_t i;                           // index
-    size_t m = 0;                       // good genotypes
-    unsigned int t = 0;                 // sum of genotypes
+#include "kjg_2bit.h"
 
-    for (i = 0; i < n; i++) {
-        if (x[i] < 3) {                 // genotype not failure
-            t += x[i];
-            m++;
-        }
-    }
+// Constructor/Destructor
 
-    if (m == 0) {
-        return (-1);
-    }
+kjg_geno* kjg_geno_alloc (size_t m, size_t n) {
+    kjg_geno pre = { m, n, kjg_2bit_tda(n) };
+    kjg_geno* g = malloc(sizeof(kjg_geno));
 
-    return (((double) t) / m);
+    memcpy(g, &pre, sizeof(kjg_geno));
+    g->data = malloc(sizeof(uint8_t) * g->m * g->tda);
+
+    return (g);
 }
+
+void kjg_geno_free (kjg_geno* g) {
+    free(g->data);
+    free(g);
+}
+
+// Getter/Setter
+
+void kjg_geno_get_row (const kjg_geno* g, const size_t i, uint8_t* x) {
+    kjg_2bit_unpack(g->n, g->data + g->tda * i, x);
+}
+
+void kjg_geno_set_row (kjg_geno* g, const size_t i, const uint8_t* x) {
+    kjg_2bit_pack(g->n, x, g->data + g->tda * i);
+}
+
+// Mean
+
+#define MEAN(n) (((n) & 3) % 3) + ((((n) >> 2) & 3) % 3) + ((((n) >> 3) & 3) % 3) + ((((n) >> 6) & 3) % 3)
+
+// macros for unpacking array generation
+#define M1(n) MEAN(n),    MEAN(n | 1),    MEAN(n | 2),    MEAN(n | 3)
+#define M2(n)     M1(n), M1(n | (1 << 2)), M1(n | (2 << 2)), M1(n | (3 << 2))
+#define M3(n)     M2(n), M2(n | (1 << 4)), M2(n | (2 << 4)), M2(n | (3 << 4))
+
+// mean lookup array
+static const uint8_t MEAN_LOOKUP[256] =
+    { M3(0), M3((1 << 6)), M3((2 << 6)), M3((3 << 6)) };
+
+double kjg_geno_row_mean (const kjg_geno* g, const size_t i) {
+    size_t tda = g->tda;
+    uint8_t* p = g->data + (g->tda * i);
+    size_t sum;
+    while (tda--) sum += MEAN_LOOKUP[*(p++)];
+    return( ((double) sum) / g->n);
+}
+
+void kjg_geno_row_means (const kjg_geno* g, double* M) {
+    size_t i;
+    for (i = 0; i < g->m; i++) M[i] = kjg_geno_row_mean(g, i);
+}
+
+// Normalization
 
 int kjg_geno_normalization_lookup (const double m, double s[4]) {
     size_t i;
@@ -53,118 +91,38 @@ int kjg_geno_normalization_lookup (const double m, double s[4]) {
     return (0);
 }
 
-int kjg_geno_normalize (const uint8_t *x, double *y, const size_t n) {
-    double m = kjg_geno_mean(x, n);
-    int r = kjg_geno_normalize_m(m, x, y, n);
-    return (r);
-}
-
-int kjg_geno_normalize_m (
-        const double m,
-        const uint8_t* x,
-        double* y,
-        const size_t n) {
-    double s[4];
-    int r = kjg_geno_normalization_lookup(m, s);
-    kjg_geno_remap(s, x, y, n);
-    return r;
-}
-
-void kjg_geno_remap (
-        const double s[4],
-        const uint8_t* x,
-        double* y,
-        const size_t n) {
-    size_t i;
-    for (i = 0; i < n; i++) {
-        y[i] = s[x[i]];
-    }
-}
-
-void kjg_geno_pack (const uint8_t* x, uint8_t* y, size_t n) {
-    size_t i, j = 0;
-    uint8_t* p;
-    for (i = 0; i < n; i++) {
-        if (i % 4 == 0) {
-            p = y + j++;
-            *p = 0;
-        }
-        else *p <<= 2;
-
-        *p |= x[i];
-    }
-}
-
-void kjg_geno_unpack (uint8_t* x, const uint8_t* y, size_t n) {
-    size_t i, j = n / 4;
-    uint8_t p;
-
-    if (n % 4 != 0) p = y[j] << 2;
-
-    for (i = n; i > 0;) {
-        if (i % 4 == 0) p = y[--j];
-        else p >>= 2;
-        x[--i] = p & 3;
-    }
-}
-
-void kjg_geno_free (kjg_geno* g) {
-    free(g->data);
-    free(g);
-}
-
-kjg_geno* kjg_geno_alloc (size_t m, size_t n) {
-    kjg_geno pre = { m, n, (n + 3) / 4 };
-    kjg_geno* g = malloc(sizeof(kjg_geno));
-
-    memcpy(g, &pre, sizeof(kjg_geno));
-    g->data = malloc(sizeof(uint8_t) * g->m * g->tda);
-
-    return (g);
-}
-
-void kjg_geno_get_row (uint8_t* x, const kjg_geno* g, const size_t i) {
-    kjg_geno_unpack(x, g->data + g->tda * i, g->n);
-}
-
-void kjg_geno_set_row (const uint8_t* x, kjg_geno* g, const size_t i) {
-    kjg_geno_pack(x, g->data + (g->tda * i), g->n);
-}
-
 void kjg_geno_get_normalized_row (
-        uint8_t* x,
-        double* y,
-        const kjg_geno* g,
-        const double* M,
-        const size_t i) {
-    kjg_geno_get_row(x, g, i);
-    kjg_geno_normalize_m(M[i], x, y, g->n);
-}
-
-size_t kjg_geno_get_normalized_rows (
-        uint8_t* x,
-        double* Y,
         const kjg_geno* g,
         const double* M,
         const size_t i,
-        const size_t r) {
-    size_t j;
-    double *y = Y;
-    for (j = i; j < i + r && j < g->m; j++) {
-        kjg_geno_get_normalized_row(x, y, g, M, j);
-        y += g->n;
+        double* y) {
+    double s[4];
+    kjg_geno_normalization_lookup(M[i], s);
+
+    size_t tda = g->tda;
+    uint8_t* p = g->data + (g->tda * i);
+
+    uint8_t j;
+
+    while (--tda) {
+        const uint8_t* u = KJG_2BIT_UNPACK_LOOKUP[*(p++)];
+        for (j = 0; j < 4; j++) *(y++) = s[*(u++)];
     }
-    return (j - i);
+
+    const uint8_t* u = KJG_2BIT_UNPACK_LOOKUP[*p];
+    for (j = (g->tda - 1 ) * 4; j < i; j++) *(y++) = s[*(u++)];
 }
 
-void kjg_geno_row_means (const kjg_geno* g, double* M) {
-    size_t i;
-    uint8_t *x = malloc(sizeof(uint8_t) * g->n);
-
-    for (i = 0; i < g->m; i++) {
-        kjg_geno_get_row(x, g, i);
-        M[i] = kjg_geno_mean(x, g->n);
+size_t kjg_geno_get_normalized_rows (
+        const kjg_geno* g,
+        const double* M,
+        const size_t i,
+        const size_t r,
+        double* Y) {
+    size_t j;
+    for (j = i; j < i + r && j < g->m; j++) {
+        kjg_geno_get_normalized_row(g, M, j, Y);
+        Y += g->n;
     }
-
-    free(x);
+    return (j - i);
 }

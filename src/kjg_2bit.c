@@ -11,7 +11,7 @@
 #define U3(n)     U2(n), U2(n | (1 << 4)), U2(n | (2 << 4)), U2(n | (3 << 4))
 
 // unpack lookup array
-static const uint8_t UNPACK_LOOKUP[256][4] =
+const uint8_t KJG_2BIT_UNPACK_LOOKUP[256][4] =
     { U3(0), U3((1 << 6)), U3((2 << 6)), U3((3 << 6)) };
 
 // packs 4 integers into a byte
@@ -23,7 +23,8 @@ static const uint8_t UNPACK_LOOKUP[256][4] =
 #define P3(d)       {       P2(0,d),       P2(1,d),       P2(2,d),       P2(3,d) }
 
 // pack lookup array (faster than running PACK)
-static const uint8_t PACK_LOOKUP[4][4][4][4] = { P3(0), P3(1), P3(2), P3(3) };
+const uint8_t KJG_2BIT_PACK_LOOKUP[4][4][4][4] =
+    { P3(0), P3(1), P3(2), P3(3) };
 
 /** Packs an array of 4 integers into one byte
  * @param *unpacked array of 4 integers
@@ -31,7 +32,7 @@ static const uint8_t PACK_LOOKUP[4][4][4][4] = { P3(0), P3(1), P3(2), P3(3) };
  */
 
 inline uint8_t kjg_2bit_pack_unit (const uint8_t* unpacked) {
-    return (PACK_LOOKUP[unpacked[3]][unpacked[2]][unpacked[1]][unpacked[0]]);
+    return (KJG_2BIT_PACK_LOOKUP[unpacked[3]][unpacked[2]][unpacked[1]][unpacked[0]]);
 }
 
 size_t kjg_2bit_pack (const size_t n, const uint8_t* unpacked, uint8_t* packed) {
@@ -58,9 +59,9 @@ size_t kjg_2bit_unpack (
         uint8_t* unpacked) {
     size_t i, j = 0;
     for (i = 0; i < n - 4; i += 4) {
-        memcpy(&unpacked[i], &UNPACK_LOOKUP[packed[j++]], 4);
+        memcpy(&unpacked[i], &KJG_2BIT_UNPACK_LOOKUP[packed[j++]], 4);
     }
-    memcpy(&unpacked[i], &UNPACK_LOOKUP[packed[j]], n - i);
+    memcpy(&unpacked[i], &KJG_2BIT_UNPACK_LOOKUP[packed[j]], n - i);
     return (j);
 }
 
@@ -71,7 +72,7 @@ size_t kjg_2bit_unpack_or (
         uint8_t* unpacked) {
     size_t i, j = 0;
     for (i = 0; i < n; i += 4) {
-        memcpy(&unpacked[i], &UNPACK_LOOKUP[packed[j] | mask[j++]],
+        memcpy(&unpacked[i], &KJG_2BIT_UNPACK_LOOKUP[packed[j] | mask[j++]],
                 sizeof(uint32_t));
     }
     return (j);
