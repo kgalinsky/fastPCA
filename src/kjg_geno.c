@@ -20,7 +20,7 @@
 // Constructor/Destructor
 
 kjg_geno* kjg_geno_alloc (size_t m, size_t n) {
-    kjg_geno pre = { m, n, kjg_2bit_tda(n) };
+    kjg_geno pre = { m, n, kjg_2bit_packed_tda(n) };
     kjg_geno* g = malloc(sizeof(kjg_geno));
 
     memcpy(g, &pre, sizeof(kjg_geno));
@@ -46,12 +46,12 @@ void kjg_geno_set_row (kjg_geno* g, const size_t i, const uint8_t* x) {
 
 // Mean
 
-#define MEAN(n) (((n) & 3) % 3) + ((((n) >> 2) & 3) % 3) + ((((n) >> 3) & 3) % 3) + ((((n) >> 6) & 3) % 3)
+#define MEAN(n) (((n) & 3) % 3) + ((((n) >> 2) & 3) % 3) + ((((n) >> 4) & 3) % 3) + ((((n) >> 6) & 3) % 3)
 
 // macros for unpacking array generation
-#define M1(n) MEAN(n),    MEAN(n | 1),    MEAN(n | 2),    MEAN(n | 3)
-#define M2(n)     M1(n), M1(n | (1 << 2)), M1(n | (2 << 2)), M1(n | (3 << 2))
-#define M3(n)     M2(n), M2(n | (1 << 4)), M2(n | (2 << 4)), M2(n | (3 << 4))
+#define M1(n) MEAN(n),      MEAN(n | 1),      MEAN(n | 2),      MEAN(n | 3)
+#define M2(n)   M1(n), M1(n | (1 << 2)), M1(n | (2 << 2)), M1(n | (3 << 2))
+#define M3(n)   M2(n), M2(n | (1 << 4)), M2(n | (2 << 4)), M2(n | (3 << 4))
 
 // mean lookup array
 static const uint8_t MEAN_LOOKUP[256] =
@@ -60,7 +60,7 @@ static const uint8_t MEAN_LOOKUP[256] =
 double kjg_geno_row_mean (const kjg_geno* g, const size_t i) {
     size_t tda = g->tda;
     uint8_t* p = g->data + (g->tda * i);
-    size_t sum;
+    size_t sum = 0;
     while (tda--) sum += MEAN_LOOKUP[*(p++)];
     return( ((double) sum) / g->n);
 }
@@ -102,7 +102,7 @@ void kjg_geno_get_normalized_row (
     size_t tda = g->tda;
     uint8_t* p = g->data + (g->tda * i);
 
-    uint8_t j;
+    size_t j;
 
     while (--tda) {
         const uint8_t* u = KJG_2BIT_UNPACK_LOOKUP[*(p++)];

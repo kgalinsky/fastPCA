@@ -60,7 +60,7 @@ void kjg_genoIO_fread_geno (kjg_geno* g, FILE* stream) {
     size_t i;
     for (i = 0; i < g->m; i++) {
         kjg_genoIO_fread(buffer, x, g->n, stream);
-        kjg_geno_set_row(x, g, i);
+        kjg_geno_set_row(g, i, x);
     }
 
     free(buffer);

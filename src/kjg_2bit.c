@@ -78,6 +78,6 @@ size_t kjg_2bit_unpack_or (
     return (j);
 }
 
-inline size_t kjg_2bit_packed_tda (const size_t n) {
+size_t kjg_2bit_packed_tda (const size_t n) {
     return ((n + 3) / 4);
 }
