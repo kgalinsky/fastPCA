@@ -35,7 +35,8 @@ void kjg_fpca (
     gsl_matrix* Gswap;
 
     gsl_rng *r = kjg_gsl_rng_init();
-    kjg_gsl_matrix_set_ran_ugaussian(G1, r);
+    kjg_gsl_ran_ugaussian_matrix(r, G1);
+    gsl_rng_free(r);
 
     size_t i;
     for (i = 0; i < I; i++) {

@@ -112,24 +112,38 @@ int kjg_gsl_dorgqr (gsl_matrix *m, gsl_vector *tau) {
             m->data, m->tda, tau->data));
 }
 
-void kjg_gsl_matrix_set_ran_ugaussian (gsl_matrix* m, const gsl_rng* r) {
+void kjg_gsl_ran_ugaussian_pair (const gsl_rng* r, double x[2]) {
+    double r2;
+
+    do {
+        /* choose x,y in uniform square (-1,-1) to (+1,+1) */
+        x[0] = -1 + 2 * gsl_rng_uniform_pos(r);
+        x[1] = -1 + 2 * gsl_rng_uniform_pos(r);
+
+        /* see if it is in the unit circle */
+        r2 = x[0] * x[0] + x[1] * x[1];
+    } while (r2 > 1.0 || r2 == 0);
+
+    r2 = sqrt(-2.0 * log(r2) / r2);
+
+    x[0] *= r2;
+    x[1] *= r2;
+}
+
+void kjg_gsl_ran_ugaussian_matrix (const gsl_rng* r, gsl_matrix* m) {
     size_t i, j;
+    double* data;
     double x, y, r2;
+
     for (i = 0; i < m->size1; i++) {
-        for (j = 0; j < m->size2; j += 2) {
-            do {
-                /* choose x,y in uniform square (-1,-1) to (+1,+1) */
-                x = -1 + 2 * gsl_rng_uniform_pos(r);
-                y = -1 + 2 * gsl_rng_uniform_pos(r);
+        data = gsl_matrix_ptr(m, i, 0);
 
-                /* see if it is in the unit circle */
-                r2 = x * x + y * y;
-            } while (r2 > 1.0 || r2 == 0);
-            r2 = sqrt(-2.0 * log(r2) / r2);
-
-            gsl_matrix_set(m, i, j, x * r2);
-            gsl_matrix_set(m, i, j + 1, y * r2);
+        for (j = 0; j < m->size2 - 1; j += 2) {
+            kjg_gsl_ran_ugaussian_pair(r, data);
+            data += 2;
         }
+
+        if (m->size2 % 2) *data = gsl_rng_uniform_pos(r);
     }
 }
 
@@ -140,10 +154,7 @@ void kjg_gsl_matrix_QR (gsl_matrix* m) {
     gsl_vector_free(tau);
 }
 
-int kjg_gsl_SVD (
-        gsl_matrix* M,
-        gsl_matrix* V,
-        gsl_vector* S) {
+int kjg_gsl_SVD (gsl_matrix* M, gsl_matrix* V, gsl_vector* S) {
     size_t big_enough = M->size1 + V->size2;
     double* superb = malloc(big_enough * sizeof(double));
     double* U;
