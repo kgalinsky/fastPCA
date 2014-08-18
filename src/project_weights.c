@@ -72,7 +72,7 @@ void main (int argc, char **argv) {
     fclose(fh_geno2);
 
     printf("Computing evec (%dx%d)\n", m, k);
-    kjg_fpca_XTH(X, M, weights, evec);
+    kjg_fpca_XTB(X, M, weights, evec);
 
     printf("Scaling evec\n");
     {

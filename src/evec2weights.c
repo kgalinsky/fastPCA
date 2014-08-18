@@ -57,7 +57,7 @@ void main (int argc, char **argv) {
 
     printf("Computing weights (%dx%d)\n", m, k);
     kjg_geno_row_means(X, M);
-    kjg_fpca_XG(X, M, evec, weights);
+    kjg_fpca_XA(X, M, evec, weights);
 
     printf("Scaling weights\n");
     {

@@ -13,14 +13,10 @@ debug: $(executables)
 clean:
 	rm -rf *.o $(executables)
 
-pca: pca.o kjg_geno.o kjg_genoIO.o kjg_util.o kjg_GRM.o
+pca: pca.o kjg_2bit.o kjg_geno.o kjg_genoIO.o kjg_util.o kjg_GRM.o kjg_gsl.o
 
-fastpca: fastpca.o kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_util.o kjg_fpca.o
+fastpca: fastpca.o kjg_2bit.o kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_util.o kjg_fpca.o
 
-fastpca-wide: fastpca-wide.o kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_util.o kjg_fpca.o
+evec2weights: evec2weights.o kjg_gsl.o kjg_2bit.o kjg_geno.o kjg_genoIO.o kjg_fpca.o
 
-evec2weights: evec2weights.o kjg_gsl.o kjg_geno.o kjg_genoIO.o kjg_fpca.o
-
-project_weights: project_weights.o kjg_gsl.o kjg_geno.o kjg_genoIO.o kjg_fpca.o
-
-pack: pack.o kjg_2bit.o
+project_weights: project_weights.o kjg_gsl.o kjg_2bit.o kjg_geno.o kjg_genoIO.o kjg_fpca.o
