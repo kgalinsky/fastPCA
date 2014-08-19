@@ -3,13 +3,15 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 // Map characters to integer
 static const uint8_t KJG_GENOIO_CHAR_MAP[256] = { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
         4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-        4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 1, 2, 4, 4, 4, 4, 4, 4, 3,
-        4, 4, 4, 4, 4,
-        4, // the magic happens here
+        4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+        // The magic happens here
+        0, 1, 2, 4, 4, 4, 4, 4, 4, 3,
+        // Maps characters to the appropriate numbers
         4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
         4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
         4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
@@ -17,7 +19,30 @@ static const uint8_t KJG_GENOIO_CHAR_MAP[256] = { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
         4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
         4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
         4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-        4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 };
+        4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+        4, 4, 4, 4, 4, 4 };
+
+kjg_genoIO* kjg_genoIO_fopen (const char* path, const char* mode) {
+    if (mode[0] != 'r') return (NULL); // TODO support writing
+
+    FILE* stream = fopen(path, mode);
+    if (stream == NULL) return (NULL);
+
+    size_t n = kjg_genoIO_num_ind(stream);
+    size_t m = kjg_genoIO_num_snp(stream, n);
+
+    kjg_genoIO pre = { m, n, stream };
+    kjg_genoIO* gp = malloc(sizeof(kjg_genoIO));
+    memcpy(gp, &pre, sizeof(kjg_genoIO));
+
+    return (gp);
+}
+
+int kjg_genoIO_fclose (kjg_genoIO* gp) {
+    int r = fclose(gp->stream);
+    free(gp);
+    return (r);
+}
 
 size_t kjg_genoIO_num_ind (FILE* stream) {
     fseek(stream, 0, 0);

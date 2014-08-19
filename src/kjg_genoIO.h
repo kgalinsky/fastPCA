@@ -1,8 +1,6 @@
 /*
- * kjg_genoIO.h
- *
- *  Created on: Jul 31, 2013
- *      Author: kjg063
+ * @file kjg_genoIO.h
+ * @brief Reads geno files
  */
 
 #ifndef KJG_GENOIO_H_
@@ -14,6 +12,30 @@
 #include <stdlib.h>
 
 #include "kjg_geno.h"
+
+// Struct for reading geno files
+
+typedef struct {
+    const size_t m;   // number of SNPs
+    const size_t n;   // number of samples
+    FILE* stream;
+} kjg_genoIO;
+
+/**
+ * Opens a geno file
+ * @param *path path to file
+ * @param *mode mode to open (supports only read for now)
+ * @return point to kjg_genoIO struct
+ */
+
+kjg_genoIO* kjg_genoIO_fopen (const char* path, const char* mode);
+
+/**
+ * Closes a geno file
+ * @param *gp pointer to kjg_genoIO struct
+ */
+
+int kjg_genoIO_fclose (kjg_genoIO* gp);
 
 /**
  * Determine the number of individuals in a geno file.
