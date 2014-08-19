@@ -9,7 +9,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/** Data structure for genotype data */
+// Data structure for genotype data
+
 typedef struct {
     const size_t m;     // number of SNPs
     const size_t n;     // number of individuals
@@ -19,14 +20,16 @@ typedef struct {
 
 // Constructor/Destructor
 
-/** Allocates geno struct
+/**
+ * Allocates geno struct
  * @param m rows (snps)
  * @param n columns (individuals)
  */
 
 kjg_geno* kjg_geno_alloc (size_t m, size_t n);
 
-/** Frees geno struct
+/**
+ * Frees geno struct
  * @param *g geno struct to free
  */
 
@@ -34,7 +37,8 @@ void kjg_geno_free (kjg_geno* g);
 
 // Getter/Setter
 
-/** Gets a row in the geno object
+/**
+ * Gets a row in the geno object
  * @param *g geno object
  * @param i row index
  * @param *x unpacked row
@@ -42,7 +46,8 @@ void kjg_geno_free (kjg_geno* g);
 
 void kjg_geno_get_row (const kjg_geno* g, const size_t i, uint8_t* x);
 
-/** Sets a row in the geno object
+/**
+ * Sets a row in the geno object
  * @param *g geno object
  * @param i row index
  * @param *x unpacked row
@@ -52,21 +57,24 @@ void kjg_geno_set_row (kjg_geno* g, const size_t i, const uint8_t* x);
 
 // Basic functions
 
-/** Computes mean of a row
+/**
+ * Computes mean of a row
  * @param *g geno object
  * @param i row index
  */
 
 double kjg_geno_row_mean (const kjg_geno* g, const size_t i);
 
-/** Compute the mean genotype of all SNPs in the geno object
+/**
+ * Compute the mean genotype of all SNPs in the geno object
  * @param *g geno object
  * @param *M array to store means
  */
 
 void kjg_geno_row_means (const kjg_geno* g, double* M);
 
-/** Computes the normalization lookup array.
+/**
+ * Computes the normalization lookup array.
  * @param m genotype mean
  * @param s[4] array to store the scale
  * @return success (0) or zero genotype variance error (1)
@@ -74,7 +82,8 @@ void kjg_geno_row_means (const kjg_geno* g, double* M);
 
 int kjg_geno_normalization_lookup (const double m, double s[4]);
 
-/** Gets a normalized row
+/**
+ * Gets a normalized row
  * @param *g geno struc
  * @param *M mean array
  * @param i row index
@@ -87,7 +96,8 @@ void kjg_geno_get_normalized_row (
         const size_t i,
         double* y);
 
-/** Gets multiple normalized rows
+/**
+ * Gets multiple normalized rows
  * @param *g geno struct
  * @param *M mean array
  * @param i row index

@@ -63,7 +63,8 @@ gsl_rng *kjg_gsl_rng_init ();
 
 void kjg_gsl_ran_ugaussian_pair (const gsl_rng* r, double x[2]);
 
-/** Fills a matrix with unit Gaussian random variates
+/**
+ * Fills a matrix with unit Gaussian random variates
  * @param *r random number generator
  * @param *m matrix to be filled
  */
