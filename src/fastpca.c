@@ -69,7 +69,7 @@ int main (int argc, char **argv) {
     timelog("fastPCA completed");
     free(M);
 
-    FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
+    FILE *fh_evec = kjg_util_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
     kjg_gsl_evec_fprintf(fh_evec, eval, evec, "%g");
     fclose(fh_evec);
 

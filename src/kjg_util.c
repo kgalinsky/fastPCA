@@ -12,7 +12,7 @@
 
 #include "kjg_util.h"
 
-FILE* kjg_fopen_suffix (
+FILE* kjg_util_fopen_suffix (
         const char* prefix,
         const char* suffix,
         const char* opentype) {
@@ -28,7 +28,7 @@ FILE* kjg_fopen_suffix (
     return (fh);
 }
 
-double kjg_deltat (const struct timespec t1, const struct timespec t2) {
+double kjg_util_deltat (const struct timespec t1, const struct timespec t2) {
     return (t2.tv_sec - t1.tv_sec
             + (double) (t2.tv_nsec - t1.tv_nsec) / (1000000000));
 }

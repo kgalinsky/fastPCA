@@ -39,7 +39,7 @@ int main (int argc, char** argv) {
     parse_args(argc, argv);
 
     kjg_genoIO *gp = kjg_genoIO_fopen(GENO_FILENAME, "r");
-    FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
+    FILE *fh_evec = kjg_util_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
 
     kjg_geno* X = kjg_genoIO_fread_geno(gp);
     kjg_genoIO_fclose(gp);
