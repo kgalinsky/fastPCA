@@ -22,7 +22,7 @@ typedef struct {
  * @param n number of subjects
  * @return array
  */
-kjg_GRM* kjg_GRM_alloc (const kjg_geno* g);
+kjg_GRM* kjg_GRM_alloc (size_t n);
 
 /**
  * Frees the GRM

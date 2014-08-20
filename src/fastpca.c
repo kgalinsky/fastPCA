@@ -45,29 +45,29 @@ int main (int argc, char **argv) {
 
     parse_args(argc, argv);
 
-    FILE *fh_geno = fopen(GENO_FILENAME, "r");
-
-    size_t n = kjg_genoIO_num_ind(fh_geno);
-    size_t m = kjg_genoIO_num_snp(fh_geno, n);
-
-    kjg_geno* X = kjg_geno_alloc(m, n);
-    double* M = malloc(sizeof(double) * m);
-
-    gsl_vector* eval = gsl_vector_alloc(K);
-    gsl_matrix* evec = gsl_matrix_alloc(n, K);
-
     // PREP - read genotype file into memory
-    sprintf(message, "Reading geno (%dx%d)", m, n);
+    kjg_genoIO *gp = kjg_genoIO_fopen(GENO_FILENAME, "r");
+
+    sprintf(message, "Reading geno (%dx%d)", gp->m, gp->n);
     timelog(message);
-    kjg_genoIO_fread_geno(X, fh_geno);
-    fclose(fh_geno);
+
+    kjg_geno* X = kjg_genoIO_fread_geno(gp);
+    kjg_genoIO_fclose(gp);
 
     // calculate the SNP means
+    double* M = malloc(sizeof(double) * X->m);
+
+    timelog("Calculating SNP allele frequencies");
     kjg_geno_row_means(X, M);
+
+    // run fast PCA
+    gsl_vector* eval = gsl_vector_alloc(K);
+    gsl_matrix* evec = gsl_matrix_alloc(X->n, K);
 
     timelog("fastPCA started");
     kjg_fpca(X, M, eval, evec, L, I);
     timelog("fastPCA completed");
+    free(M);
 
     FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
     kjg_gsl_evec_fprintf(fh_evec, eval, evec, "%g");

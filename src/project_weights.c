@@ -17,8 +17,10 @@ void main (int argc, char **argv) {
     }
 
     FILE *fh_weight = fopen(argv[1], "r");
-    FILE *fh_geno1 = fopen(argv[2], "r");
-    FILE *fh_geno2 = fopen(argv[3], "r");
+    kjg_genoIO* gp1 = kjg_genoIO_fopen(argv[2], "r");
+    kjg_genoIO* gp2 = kjg_genoIO_fopen(argv[3], "r");
+
+    if (gp1->m != gp2->m) exit(1);
 
     size_t k = 1;
     {
@@ -34,22 +36,11 @@ void main (int argc, char **argv) {
         fseek(fh_weight, 0, SEEK_SET);
     }
 
-    size_t n1 = kjg_genoIO_num_ind(fh_geno1);
-    size_t n2 = kjg_genoIO_num_ind(fh_geno2);
-    size_t m = kjg_genoIO_num_snp(fh_geno1, n1);
-
-    if (m != kjg_genoIO_num_snp(fh_geno2, n2)) {
-        exit(1);
-    }
+    kjg_geno *X;
 
     gsl_vector *eval = gsl_vector_alloc(k);
-    gsl_matrix *evec = gsl_matrix_alloc(n2, k);
-    gsl_matrix *weights = gsl_matrix_alloc(m, k);
-
-    kjg_geno *X;
-    double *M = malloc(sizeof(double) * m);
-
-    printf("Reading weights (%dx%d)\n", m, k);
+    gsl_matrix *weights = gsl_matrix_alloc(gp1->m, k);
+    printf("Reading weights (%dx%d)\n", gp1->m, k);
     int r = kjg_gsl_evec_fscanf(fh_weight, eval, weights);
     if (r) {
         printf("Error reading weights file\n");
@@ -57,34 +48,41 @@ void main (int argc, char **argv) {
     }
     fclose(fh_weight);
 
-    printf("Reading geno1 (%dx%d)\n", m, n1);
-    X = kjg_geno_alloc(m, n1);
-    kjg_genoIO_fread_geno(X, fh_geno1);
-    fclose(fh_geno1);
+    printf("Reading geno1 (%dx%d)\n", gp1->m, gp1->n);
+    X = kjg_genoIO_fread_geno(gp1);
+    kjg_genoIO_fclose(gp1);
 
+    double *M = malloc(sizeof(double) * X->m);
     printf("Computing means\n");
     kjg_geno_row_means(X, M);
     kjg_geno_free(X);
+    free(M);
 
-    printf("Reading geno2 (%dx%d)\n", m, n2);
-    X = kjg_geno_alloc(m, n2);
-    kjg_genoIO_fread_geno(X, fh_geno2);
-    fclose(fh_geno2);
+    printf("Reading geno2 (%dx%d)\n", gp2->m, gp2->n);
+    X = kjg_genoIO_fread_geno(gp2);
+    kjg_genoIO_fclose(gp2);
 
-    printf("Computing evec (%dx%d)\n", m, k);
+    gsl_matrix *evec = gsl_matrix_alloc(X->n, k);
+    printf("Computing evec (%dx%d)\n", X->m, k);
     kjg_fpca_XTB(X, M, weights, evec);
+    gsl_matrix_free(weights);
 
     printf("Scaling evec\n");
     {
         size_t i;
         for (i = 0; i < k; i++) {
-            double scale = 1.0 / sqrt(m * gsl_vector_get(eval, i));
+            double scale = 1.0 / sqrt(X->m * gsl_vector_get(eval, i));
             gsl_vector_view V = gsl_matrix_column(evec, i);
             gsl_vector_scale(&V.vector, scale);
         }
     }
 
+    kjg_geno_free(X);
+
     printf("Printing evec\n");
     FILE *fh_evec = fopen(argv[4], "w");
     kjg_gsl_evec_fprintf(fh_evec, eval, evec, "%g");
+
+    gsl_vector_free(eval);
+    gsl_matrix_free(evec);
 }

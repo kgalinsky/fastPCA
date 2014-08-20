@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <string.h>
 
+size_t KJG_GENOIO_MAX_BUFFER = 1048576; // 1MB buffer for reading
+
 // Map characters to integer
 static const uint8_t KJG_GENOIO_CHAR_MAP[256] = { 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
         4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
@@ -72,22 +74,27 @@ void kjg_genoIO_char2int (const char* buffer, uint8_t* x, const size_t n) {
     }
 }
 
-size_t kjg_genoIO_fread (char* buffer, uint8_t* x, const size_t n, FILE* stream) {
-    size_t r = fread(buffer, 1, n + 1, stream);
-    kjg_genoIO_char2int(buffer, x, r - 1);
-    return (r);
-}
+kjg_geno* kjg_genoIO_fread_geno (kjg_genoIO* gp) {
+    kjg_geno* g = kjg_geno_alloc(gp->m, gp->n);
 
-void kjg_genoIO_fread_geno (kjg_geno* g, FILE* stream) {
-    char *buffer = malloc(sizeof(char) * (g->n + 1));
-    uint8_t *x = malloc(sizeof(uint8_t) * g->n);
+    size_t n1 = gp->n + 1;                  // n + 1
+    size_t nb = KJG_GENOIO_MAX_BUFFER / n1; // number of lines in the buffer
 
-    size_t i;
-    for (i = 0; i < g->m; i++) {
-        kjg_genoIO_fread(buffer, x, g->n, stream);
-        kjg_geno_set_row(g, i, x);
-    }
+    char *buffer = malloc(sizeof(char) * n1 * nb);
+    uint8_t *x = malloc(sizeof(uint8_t) * gp->n);
+
+    size_t i, j = 0;
+    size_t nr;                           // number of lines read
+    do {
+        nr = fread(buffer, sizeof(char) * n1, nb, gp->stream);
+        for (i = 0; i < nr; i++) {
+            kjg_genoIO_char2int(&buffer[i*n1], x, gp->n);
+            kjg_geno_set_row(g, j++, x);
+        }
+    } while (nr == nb);
 
     free(buffer);
     free(x);
+
+    return(g);
 }

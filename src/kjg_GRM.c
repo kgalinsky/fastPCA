@@ -12,9 +12,8 @@
 #include "kjg_GRM.h"
 #include "kjg_geno.h"
 
-kjg_GRM* kjg_GRM_alloc (const kjg_geno* g) {
-    size_t n = g->n;
-    kjg_GRM pre = { g->n };
+kjg_GRM* kjg_GRM_alloc (size_t n) {
+    kjg_GRM pre = { n };
     kjg_GRM* GRM = malloc(sizeof(kjg_GRM));
 
     memcpy(GRM, &pre, sizeof(kjg_GRM));
@@ -27,7 +26,6 @@ void kjg_GRM_free (kjg_GRM* GRM) {
     free(GRM->data);
     free(GRM);
 }
-
 
 void kjg_GRM_calc (kjg_GRM* GRM, const kjg_geno* g, const double* M) {
     size_t i, j, k;

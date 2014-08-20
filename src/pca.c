@@ -38,26 +38,25 @@ void scale_evals (gsl_vector* evals);
 int main (int argc, char** argv) {
     parse_args(argc, argv);
 
-    FILE *fh_geno = fopen(GENO_FILENAME, "r");
+    kjg_genoIO *gp = kjg_genoIO_fopen(GENO_FILENAME, "r");
     FILE *fh_evec = kjg_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
 
-    size_t n = kjg_genoIO_num_ind(fh_geno);
-    size_t m = kjg_genoIO_num_snp(fh_geno, n);
+    kjg_geno* X = kjg_genoIO_fread_geno(gp);
+    kjg_genoIO_fclose(gp);
 
-    kjg_geno* X = kjg_geno_alloc(m, n);
-    double* M = malloc(m * sizeof(double));
-
-    kjg_genoIO_fread_geno(X, fh_geno);
+    double* M = malloc(X->m * sizeof(double));
     kjg_geno_row_means(X, M);
 
-    kjg_GRM* GRM = kjg_GRM_alloc(X);
+    kjg_GRM* GRM = kjg_GRM_alloc(X->n);
     kjg_GRM_calc(GRM, X, M);
+    kjg_geno_free(X);
+    free(M);
 
-    gsl_vector* evals = gsl_vector_alloc(n);
-    gsl_matrix* evecs = gsl_matrix_alloc(n, n);
+    gsl_vector* evals = gsl_vector_alloc(GRM->n);
+    gsl_matrix* evecs = gsl_matrix_alloc(GRM->n, GRM->n);
 
-    LAPACKE_dspevd(LAPACK_COL_MAJOR, 'V', 'L', n, GRM->data, evals->data,
-            evecs->data, n);
+    LAPACKE_dspevd(LAPACK_COL_MAJOR, 'V', 'L', GRM->n, GRM->data, evals->data,
+            evecs->data, GRM->n);
 
     kjg_GRM_free(GRM);
 
@@ -67,13 +66,13 @@ int main (int argc, char** argv) {
     {
         size_t i;
 
-        for (i = 0; i < n/2; i++)
-            gsl_matrix_swap_columns(evecs, i, n-i-1);
+        for (i = 0; i < evals->size/2; i++)
+            gsl_matrix_swap_columns(evecs, i, evals->size-i-1);
 
     }
 
     gsl_vector_view evalsk = gsl_vector_subvector(evals, 0, K);
-    gsl_matrix_view evecsk = gsl_matrix_submatrix(evecs, 0, 0, n, K);
+    gsl_matrix_view evecsk = gsl_matrix_submatrix(evecs, 0, 0, evals->size, K);
 
     kjg_gsl_evec_fprintf(fh_evec, &evalsk.vector, &evecsk.matrix, "%g");
 
