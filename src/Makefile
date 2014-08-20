@@ -1,14 +1,19 @@
-CFLAGS=$(shell gsl-config --cflags)
-LDLIBS=$(shell gsl-config --libs-without-cblas) -lopenblas -lgfortran -lrt
+CFLAGS = $(shell gsl-config --cflags)
+LDLIBS = $(shell gsl-config --libs-without-cblas) -lopenblas -lgfortran -lrt
 
 executables = pca fastpca evec2weights project_weights
 
 .PHONY: all debug clean
 
+DEBUG ?= 0
+ifeq ($(DEBUG), 1)
+	CFLAGS += -g
+endif
+
 all: $(executables)
 
-debug: CFLAGS+=-g
-debug: $(executables)
+debug: CFLAGS += -g
+debug: all
 
 clean:
 	rm -rf *.o $(executables)
