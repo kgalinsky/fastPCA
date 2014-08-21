@@ -10,22 +10,22 @@
 
 #define P2(a, b)    { P1(a,b,0), P1(a,b,1), P1(a,b,2), P1(a,b,3) }
 #define P3(a)       { P2(a,0),   P2(a,1),   P2(a,2),   P2(a,3) }
-
+#define P4          { P3(0),     P3(1),     P3(2),     P3(3) }
 
 // pack lookup array (faster than running PACK)
-const uint8_t KJG_2BIT_PACK_LOOKUP[4][4][4][4] = { P3(0), P3(1), P3(2), P3(3) };
+const uint8_t KJG_2BIT_PACK_LOOKUP[4][4][4][4] = P4;
 
-// macros for unpacking array generation
+// macros for unpacking array generation - instead of a for loop
 #define U1(n) KJG_2BIT_UNPACK(n), \
-              KJG_2BIT_UNPACK(n | 1), \
-              KJG_2BIT_UNPACK(n | 2), \
-              KJG_2BIT_UNPACK(n | 3)
+              KJG_2BIT_UNPACK(n + 1), \
+              KJG_2BIT_UNPACK(n + 2), \
+              KJG_2BIT_UNPACK(n + 3)
 
-#define U2(n) U1(n), U1(n | (1<<2)), U1(n | (2<<2)), U1(n | (3<<2))
-#define U3(n) U2(n), U2(n | (1<<4)), U2(n | (2<<4)), U2(n | (3<<4))
-
+#define U2(n) U1(n), U1(n +  4), U1(n +   8), U1(n +  12)
+#define U3(n) U2(n), U2(n + 16), U2(n +  32), U2(n +  48)
+#define U4(n) U3(n), U3(n + 64), U3(n + 128), U3(n + 192)
 // unpack lookup array
-const uint8_t KJG_2BIT_UNPACK_LOOKUP[256][4] = { U3(0), U3((1<<6)), U3((2<<6)), U3((3<<6)) };
+const uint8_t KJG_2BIT_UNPACK_LOOKUP[256][4] = { U4(0) };
 
 /**
  * Packs an array of 4 integers into one byte
