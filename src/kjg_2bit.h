@@ -12,8 +12,23 @@
 #include <stddef.h>
 #include <stdint.h>
 
-extern const uint8_t KJG_2BIT_UNPACK_LOOKUP[256][4];
+#define KJG_2BIT_PACK(a, b, c, d) ( a << 6) | \
+                                  ( b << 2) | \
+                                  ( c << 1) | \
+                                    d
+
+#define KJG_2BIT_UA(n) ((n) >> 6) & 3
+#define KJG_2BIT_UB(n) ((n) >> 4) & 3
+#define KJG_2BIT_UC(n) ((n) >> 2) & 3
+#define KJG_2BIT_UD(n)  (n)       & 3
+
+#define KJG_2BIT_UNPACK(n) { KJG_2BIT_UA(n), \
+                             KJG_2BIT_UB(n), \
+                             KJG_2BIT_UC(n), \
+                             KJG_2BIT_UD(n) }
+
 extern const uint8_t KJG_2BIT_PACK_LOOKUP[4][4][4][4];
+extern const uint8_t KJG_2BIT_UNPACK_LOOKUP[256][4];
 
 /**
  * Packs an array of integers into 4-integer-per-byte array
