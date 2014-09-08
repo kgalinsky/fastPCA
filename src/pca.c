@@ -66,8 +66,8 @@ int main (int argc, char** argv) {
     {
         size_t i;
 
-        for (i = 0; i < evals->size/2; i++)
-            gsl_matrix_swap_columns(evecs, i, evals->size-i-1);
+        for (i = 0; i < evals->size / 2; i++)
+            gsl_matrix_swap_columns(evecs, i, evals->size - i - 1);
 
     }
 

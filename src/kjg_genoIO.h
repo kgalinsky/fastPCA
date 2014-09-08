@@ -46,6 +46,8 @@ int kjg_genoIO_fclose (kjg_genoIO* gp);
 
 kjg_geno* kjg_genoIO_fread_geno (kjg_genoIO* gp);
 
+size_t kjg_genoIO_fread_chunk (kjg_genoIO* gp, kjg_geno* g);
+
 /**
  * Determine the number of individuals in a geno file.
  *

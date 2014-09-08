@@ -88,7 +88,7 @@ kjg_geno* kjg_genoIO_fread_geno (kjg_genoIO* gp) {
     do {
         nr = fread(buffer, sizeof(char) * n1, nb, gp->stream);
         for (i = 0; i < nr; i++) {
-            kjg_genoIO_char2int(&buffer[i*n1], x, gp->n);
+            kjg_genoIO_char2int(&buffer[i * n1], x, gp->n);
             kjg_geno_set_row(g, j++, x);
         }
     } while (nr == nb);
@@ -96,5 +96,21 @@ kjg_geno* kjg_genoIO_fread_geno (kjg_genoIO* gp) {
     free(buffer);
     free(x);
 
-    return(g);
+    return (g);
+}
+
+size_t kjg_genoIO_fread_chunk (kjg_genoIO* gp, kjg_geno* g) {
+    size_t i, n1 = g->n + 1;
+
+    char *buffer = malloc(sizeof(char) * n1 * g->m);
+    uint8_t *x = malloc(sizeof(uint8_t) * g->n);
+
+    size_t nr = fread(buffer, sizeof(char) * n1, g->m, gp->stream);
+
+    for (i = 0; i < nr; i++) {
+        kjg_genoIO_char2int(&buffer[i * n1], x, gp->n);
+        kjg_geno_set_row(g, i, x);
+    }
+
+    return (nr);
 }

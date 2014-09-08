@@ -50,4 +50,22 @@ extern const uint8_t KJG_BEDIO_UNPACK_LOOKUP[256][4];
 extern const uint8_t KJG_BEDIO_GENO2BED_LOOKUP[256];
 extern const uint8_t KJG_BEDIO_BED2GENO_LOOKUP[256];
 
+//kjg_bedIO* kjg_bedIO_fopen (const char* path, const char* mode, size_t m, size_t n) {
+//    if (mode[0] != 'r') return (NULL); // TODO support writing
+//
+//    FILE* stream = fopen(path, mode);
+//    if (stream == NULL) return (NULL);
+//
+//    char magic[3];
+//    fread(magic, 3, 1, stream);
+//    if ((magic[0] != 'l') && (magic[])
+//    if (magic[2] != 1) return(NULL);
+//
+//    kjg_bedIO pre = { m, n, stream };
+//    kjg_bedIO* bp = malloc(sizeof(kjg_bedIO));
+//    memcpy(bp, &pre, sizeof(kjg_bedIO));
+//
+//    return (bp);
+//}
+
 #endif /* KJG_BEDIO_H_ */

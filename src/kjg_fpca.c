@@ -114,8 +114,8 @@ void kjg_fpca_XTXA (
         Bi = gsl_matrix_submatrix(B, i, 0, r, B->size2);
         gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1, &Xi.matrix, A1, 0,
                 &Bi.matrix);
-        gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, &Xi.matrix, &Bi.matrix,
-                1, A2);
+        gsl_blas_dgemm(CblasTrans, CblasNoTrans, 1, &Xi.matrix, &Bi.matrix, 1,
+                A2);
     }
 
     free(Y);

@@ -37,6 +37,7 @@ inline uint8_t kjg_2bit_pack_unit (const uint8_t* unpacked) {
     return (KJG_2BIT_PACK_LOOKUP[unpacked[0]][unpacked[1]][unpacked[2]][unpacked[3]]);
 }
 
+
 size_t kjg_2bit_pack (const size_t n, const uint8_t* unpacked, uint8_t* packed) {
     size_t i, j = 0;
 
