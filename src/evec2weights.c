@@ -75,7 +75,7 @@ void main (int argc, char **argv) {
 
     size_t chunk = 0;
     while (1) {
-        if (!chunk++ % 1000) fprintf(stderr, "Chunk %d\n", i);
+        if (! (chunk++ % 1000) ) fprintf(stderr, "Chunk %d\n", chunk);
 
         mr = kjg_genoIO_fread_chunk(gp, X);
         kjg_geno_row_means(X, M);
