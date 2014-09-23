@@ -26,6 +26,8 @@ kjg_bedIO* kjg_bedIO_fopen (
         const size_t m,
         const size_t n);
 
+kjg_bedIO* kjg_bedIO_bfile_fopen ( const char* path, const char* mode );
+
 /**
  * Closes a bed file
  * @param *bp pointer to kjg_bedIO struct
