@@ -28,6 +28,37 @@ kjg_bedIO* kjg_bedIO_fopen (
     return (bp);
 }
 
+kjg_bedIO* kjg_bedIO_bfile_fopen (const char* path, const char* mode) {
+    size_t m = 0, n = 0;
+
+    char* filenames = malloc(strlen(path) + 5); // + ".ext" + NULL
+    char c;
+
+    {
+        sprintf(filenames, "%s.bim", path);
+        FILE* stream = fopen(filenames, "r");
+        if (stream == NULL) return (NULL);
+        while ((c = fgetc(stream)) != EOF)
+            if (c == '\n') m++;
+        fclose(stream);
+    }
+
+    {
+        sprintf(filenames, "%s.fam", path);
+        FILE* stream = fopen(filenames, "r");
+        if (stream == NULL) return (NULL);
+        while ((c = fgetc(stream)) != EOF)
+            if (c == '\n') n++;
+        fclose(stream);
+    }
+
+    sprintf(filenames, "%s.bed", path);
+    kjg_bedIO* bp = kjg_bedIO_fopen(filenames, mode, m, n);
+    free(filenames);
+
+    return (bp);
+}
+
 int kjg_bedIO_fclose (kjg_bedIO* bp) {
     int r = fclose(bp->stream);
     free(bp);
