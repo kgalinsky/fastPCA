@@ -25,7 +25,7 @@ typedef struct {
  * Opens a geno file
  * @param *path path to file
  * @param *mode mode to open (supports only read for now)
- * @return point to kjg_genoIO struct
+ * @return pointer to kjg_genoIO struct
  */
 
 kjg_genoIO* kjg_genoIO_fopen (const char* path, const char* mode);
