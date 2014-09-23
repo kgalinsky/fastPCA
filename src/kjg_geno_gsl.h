@@ -12,10 +12,9 @@
 
 void kjg_geno_gsl_XTXA (
         const kjg_geno *X,
-        const double *M,
-        const gsl_matrix *A1,
+        const gsl_matrix *A,
         gsl_matrix *B,
-        gsl_matrix *A2);
+        gsl_matrix *C);
 
 /**
  * Multiplies B = X*A
@@ -27,22 +26,20 @@ void kjg_geno_gsl_XTXA (
 
 void kjg_geno_gsl_XA (
         const kjg_geno *X,
-        const double *M,
         const gsl_matrix *A,
         gsl_matrix *B);
 
 /**
- * Multiplies A = XT*B
+ * Multiplies B = XT*A
  * @param X compressed genotype matrix
  * @param *M array of SNP means
- * @param *B some matrix
- * @param *A another matrix
+ * @param *A some matrix
+ * @param *B another matrix
  */
 
 void kjg_geno_gsl_XTB (
         const kjg_geno *X,
-        const double *M,
-        const gsl_matrix *B,
-        gsl_matrix *A);
+        const gsl_matrix *A,
+        gsl_matrix *B);
 
 #endif /* KJG_GENO_GSL_H_ */

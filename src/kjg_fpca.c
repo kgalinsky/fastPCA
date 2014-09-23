@@ -16,7 +16,6 @@
 
 void kjg_fpca (
         const kjg_geno* X,
-        const double* M,
         gsl_vector* eval,
         gsl_matrix* evec,
         size_t L,
@@ -42,7 +41,7 @@ void kjg_fpca (
         gsl_matrix_view Qi = gsl_matrix_submatrix(Q, 0, i * L, X->m, L);
 
         // do the multiplication
-        kjg_geno_gsl_XTXA(X, M, G1, &Qi.matrix, G2);
+        kjg_geno_gsl_XTXA(X, G1, &Qi.matrix, G2);
 
         // orthonormalize (Gram-Schmidt equivalent)
         kjg_gsl_matrix_QR(G2);
@@ -53,7 +52,7 @@ void kjg_fpca (
     }
 
     gsl_matrix_view Qi = gsl_matrix_submatrix(Q, 0, I * L, X->m, L);
-    kjg_geno_gsl_XA(X, M, G1, &Qi.matrix);
+    kjg_geno_gsl_XA(X, G1, &Qi.matrix);
 
     {
         gsl_matrix* V = gsl_matrix_alloc(Q->size2, Q->size2);
@@ -72,7 +71,7 @@ void kjg_fpca (
 
     // PART B - compute B matrix, take SVD and return
     gsl_matrix* B = gsl_matrix_alloc(X->n, (I + 1) * L);
-    kjg_geno_gsl_XTB(X, M, Q, B);
+    kjg_geno_gsl_XTB(X, Q, B);
 
     gsl_matrix* Utilda = gsl_matrix_alloc((I + 1) * L, (I + 1) * L);
     gsl_vector* Stilda = gsl_vector_alloc((I + 1) * L);

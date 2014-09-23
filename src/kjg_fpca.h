@@ -25,7 +25,6 @@ extern size_t KJG_FPCA_ROWS; // number of rows to process at once
 
 void kjg_fpca (
         const kjg_geno* X,
-        const double* M,
         gsl_vector* eval,
         gsl_matrix* evec,
         size_t L,
