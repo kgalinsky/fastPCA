@@ -55,19 +55,16 @@ int main (int argc, char **argv) {
     kjg_genoIO_fclose(gp);
 
     // calculate the SNP means
-    double* M = malloc(sizeof(double) * X->m);
-
     timelog("Calculating SNP allele frequencies");
-    kjg_geno_row_means(X, M);
+    kjg_geno_set_norm(X);
 
     // run fast PCA
     gsl_vector* eval = gsl_vector_alloc(K);
     gsl_matrix* evec = gsl_matrix_alloc(X->n, K);
 
     timelog("fastPCA started");
-    kjg_fpca(X, M, eval, evec, L, I);
+    kjg_fpca(X, eval, evec, L, I);
     timelog("fastPCA completed");
-    free(M);
 
     FILE *fh_evec = kjg_util_fopen_suffix(OUTPUT_PREFIX, "evec", "w");
     kjg_gsl_evec_fprintf(fh_evec, eval, evec, "%g");
@@ -81,7 +78,7 @@ void parse_args (int argc, char **argv) {
     int c;
 
     opterr = 1;
-    while ((c = getopt(argc, argv, "i:k:l:o:r:")) != -1) {
+    while ((c = getopt(argc, argv, "i:k:l:o:")) != -1) {
         switch (c) {
         case 'i':
             I = atoi(optarg);
@@ -94,9 +91,6 @@ void parse_args (int argc, char **argv) {
             break;
         case 'o':
             OUTPUT_PREFIX = optarg;
-            break;
-        case 'r':
-            KJG_FPCA_ROWS = atoi(optarg);
             break;
         default:
             fprintf(stderr, "Unrecognized option '-%c'\n", optopt);
