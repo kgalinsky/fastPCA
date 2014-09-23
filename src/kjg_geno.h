@@ -22,12 +22,12 @@ typedef struct {
 
 // Packing/unpacking macros
 #define KJG_GENO_PACK(a, b, c, d) \
-    ( (((a) & 3) << 6) | \
-      (((b) & 3) << 4) | \
-      (((c) & 3) << 2) | \
-      (((d) & 3) << 0) )
+    ( (((a) & 3) << 0) | \
+      (((b) & 3) << 2) | \
+      (((c) & 3) << 4) | \
+      (((d) & 3) << 6) )
 
-#define KJG_GENO_UNPACK_I(p, i) (((p) >> ((3 - (i)) * 2)) & 3)
+#define KJG_GENO_UNPACK_I(p, i) (((p) >> ((i) * 2)) & 3)
 
 #define KJG_GENO_UNPACK(p) \
     { KJG_GENO_UNPACK_I(p, 0), \
