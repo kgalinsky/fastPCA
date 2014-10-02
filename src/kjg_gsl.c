@@ -7,8 +7,7 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_blas.h>
 
-#include <lapacke.h>
-
+#include "glue.h"
 #include "kjg_gsl.h"
 
 void kjg_gsl_matrix_fprintf (FILE* stream, gsl_matrix* m, const char* template) {
@@ -91,27 +90,6 @@ gsl_rng *kjg_gsl_rng_init () {
     return (r);
 }
 
-int kjg_gsl_matrix_frobenius_normalize (gsl_matrix* m) {
-    double s = kjg_gsl_dlange('F', m);
-    double d = m->size1 * m->size2;
-    return (gsl_matrix_scale(m, d / s));
-}
-
-double kjg_gsl_dlange (const char norm, const gsl_matrix* m) {
-    return (LAPACKE_dlange(LAPACK_ROW_MAJOR, norm, m->size1, m->size2, m->data,
-            m->tda));
-}
-
-int kjg_gsl_dgeqrf (gsl_matrix *m, gsl_vector *tau) {
-    return (LAPACKE_dgeqrf( LAPACK_ROW_MAJOR, m->size1, m->size2, m->data,
-            m->tda, tau->data));
-}
-
-int kjg_gsl_dorgqr (gsl_matrix *m, gsl_vector *tau) {
-    return (LAPACKE_dorgqr( LAPACK_ROW_MAJOR, m->size2, m->size2, m->size2,
-            m->data, m->tda, tau->data));
-}
-
 void kjg_gsl_ran_ugaussian_pair (const gsl_rng* r, double x[2]) {
     double r2;
 
@@ -149,19 +127,7 @@ void kjg_gsl_ran_ugaussian_matrix (const gsl_rng* r, gsl_matrix* m) {
 
 void kjg_gsl_matrix_QR (gsl_matrix* m) {
     gsl_vector* tau = gsl_vector_alloc(m->size2);
-    kjg_gsl_dgeqrf(m, tau);
-    kjg_gsl_dorgqr(m, tau);
+    glue_dgeqrf(m, tau);
+    glue_dorgqr(m, tau);
     gsl_vector_free(tau);
-}
-
-int kjg_gsl_SVD (gsl_matrix* M, gsl_matrix* V, gsl_vector* S) {
-    size_t big_enough = M->size1 + V->size2;
-    double* superb = malloc(big_enough * sizeof(double));
-    double* U;
-    int info = LAPACKE_dgesvd(
-            LAPACK_ROW_MAJOR, 	// row major
-            'O', 'S', M->size1, M->size2, M->data, M->tda, S->data, U,
-            big_enough, V->data, V->tda, superb);
-    free(superb);
-    return (info);
 }
