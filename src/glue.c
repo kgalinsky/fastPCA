@@ -23,7 +23,7 @@ int glue_dgesvd (
         gsl_vector* superb) {
     size_t minmn = a->size1 < a->size2 ? a->size1 : a->size2;
 
-    gsl_matrix nullmat = { 0, 0, minmn, NULL };
+    gsl_matrix nullmat = { 0, 0, a->size1 + a->size2, NULL };
 
     if (u == NULL) {
         if ((jobu == 'N') || (jobu = 'O')) u = &nullmat;
@@ -69,7 +69,7 @@ int glue_dgesdd (
         gsl_matrix* u,
         gsl_matrix* vt) {
     size_t minmn = a->size1 < a->size2 ? a->size1 : a->size2;
-    gsl_matrix nullmat = { 0, 0, minmn, NULL };
+    gsl_matrix nullmat = { 0, 0, a->size1 + a->size2, NULL };
     int alloc_s = 0, alloc_u = 0, alloc_vt = 0;
 
     if (s == NULL) {
