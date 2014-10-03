@@ -20,10 +20,14 @@ clean:
 
 pca: kjg_geno.o kjg_genoIO.o kjg_util.o kjg_GRM.o kjg_gsl.o
 
-fastpca: kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_util.o kjg_fpca.o kjg_geno_gsl.o
+fastpca: kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_util.o kjg_fpca.o kjg_geno_gsl.o glue.o
 
-fastpca-bed: kjg_geno.o kjg_bedIO.o kjg_gsl.o kjg_util.o kjg_fpca.o kjg_geno_gsl.o
+fastpca-bed: kjg_geno.o kjg_bedIO.o kjg_gsl.o kjg_util.o kjg_fpca.o kjg_geno_gsl.o glue.o
 
-evec2weights: kjg_geno.o kjg_gsl.o  kjg_genoIO.o kjg_fpca.o
+evec2weights: kjg_geno.o kjg_gsl.o kjg_genoIO.o kjg_geno_gsl.o
+
+evec2weights-bed: kjg_geno.o kjg_gsl.o kjg_bedIO.o kjg_geno_gsl.o
 
 project_weights: kjg_gsl.o kjg_geno.o kjg_genoIO.o kjg_fpca.o
+
+sim_star: kjg_geno.o
