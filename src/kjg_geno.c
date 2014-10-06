@@ -56,10 +56,6 @@ const uint8_t KJG_GENO_COUNT_LOOKUP[256] = { C3(0), C3(64), C3(128), C3(192) };
 
 // Functional interface
 
-inline uint8_t kjg_geno_pack_unit (const uint8_t* u) {
-    return (KJG_GENO_PACK_LOOKUP[u[0]][u[1]][u[2]][u[3]]);
-}
-
 void kjg_geno_pack (const size_t n, const uint8_t* u, uint8_t* p) {
     size_t i = 0, j = 0;
 
@@ -192,7 +188,12 @@ void kjg_geno_set_row (kjg_geno* g, const size_t i, const uint8_t* x) {
     kjg_geno_pack(g->n, x, g->data + g->tda * i);
 }
 
-void kjg_geno_set_af (kjg_geno* g) {
+void kjg_geno_set_af (kjg_geno* g, double* af) {
+    if (af != 0) {
+        g->af = af;
+        return;
+    }
+
     if (g->af == 0) g->af = malloc(sizeof(double) * g->m);
 
     size_t i;
@@ -200,8 +201,13 @@ void kjg_geno_set_af (kjg_geno* g) {
         g->af[i] = kjg_geno_af(g->n, g->data + (i * g->tda));
 }
 
-void kjg_geno_set_norm (kjg_geno* g) {
-    if (g->af == 0) kjg_geno_set_af(g);
+void kjg_geno_set_norm (kjg_geno* g, double* norm) {
+    if (norm != 0) {
+        g->norm = norm;
+        return;
+    }
+
+    if (g->af == 0) kjg_geno_set_af(g, 0);
     if (g->norm == 0) g->norm = malloc(sizeof(double) * g->m * 4);
 
     size_t i;
