@@ -74,9 +74,9 @@ void kjg_geno_pack (const size_t n, const uint8_t* u, uint8_t* p) {
 void kjg_geno_unpack (const size_t n, const uint8_t* p, uint8_t* u) {
     size_t i = 0, j = 0;
     for (; i < n - 4; (i += 4), j++)
-        memcpy(&u[i], &KJG_GENO_UNPACK_LOOKUP[p[j]], 4);
+        memcpy(&u[i], KJG_GENO_UNPACK_LOOKUP[p[j]], 4);
 
-    memcpy(&u[i], &KJG_GENO_UNPACK_LOOKUP[p[j]], n - i);
+    memcpy(&u[i], KJG_GENO_UNPACK_LOOKUP[p[j]], n - i);
 }
 
 size_t kjg_geno_sum_alt (const size_t n, const uint8_t* p) {
@@ -168,7 +168,7 @@ void kjg_geno_get_row_normalized (const kjg_geno* g, const size_t i, double* y) 
         y[j + 3] = s[u[3]];
     }
 
-    const uint8_t* u = KJG_GENO_UNPACK_LOOKUP[p[j]];
+    const uint8_t* u = KJG_GENO_UNPACK_LOOKUP[p[k]];
     for (; j < g->n; j++)
         y[j] = s[u[j % 4]];
 }
