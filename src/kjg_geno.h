@@ -92,6 +92,12 @@ void kjg_geno_pack (const size_t n, const uint8_t* u, uint8_t* p);
 
 void kjg_geno_unpack (const size_t n, const uint8_t* p, uint8_t* u);
 
+size_t kjg_geno_repack (
+        const size_t n,
+        const uint8_t* mask,
+        const uint8_t* p1,
+        uint8_t* p2);
+
 /**
  * Sum the alt alleles in an array of packed genotypes
  * @param n number of genotypes

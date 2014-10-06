@@ -79,6 +79,65 @@ void kjg_geno_unpack (const size_t n, const uint8_t* p, uint8_t* u) {
     memcpy(&u[i], KJG_GENO_UNPACK_LOOKUP[p[j]], n - i);
 }
 
+size_t kjg_geno_repack (
+        const size_t n,
+        const uint8_t* mask,
+        const uint8_t* p1,
+        uint8_t* p2) {
+    size_t i, j, k; // iterate through p1
+    size_t a = 0, b = 0; // iterate through p2
+    uint8_t u2[4];
+
+    for (i = 0, j = 0; i < n - 4; (i += 4), j++) {
+        if (mask[i] && mask[i + 1] && mask[i + 2] && mask[i + 3]) continue;
+
+        const uint8_t *u1 = KJG_GENO_UNPACK_LOOKUP[p1[j]];
+        for (k = 0; k < 4; k++) {
+            if (!mask[i + k]) {
+                u2[b++] = u1[k];
+
+                if (b == 4) {
+                    p2[a++] = kjg_geno_pack_unit(u2);
+                    b = 0;
+                }
+            }
+        }
+    }
+
+    const uint8_t *u1 = KJG_GENO_UNPACK_LOOKUP[p1[j]];
+    for (; i < n; i++) {
+        if (!mask[i]) {
+            u2[b++] = u1[i % 4];
+
+            if (b == 4) {
+                p2[a++] = kjg_geno_pack_unit(u2);
+                b = 0;
+            }
+        }
+    }
+
+    if (b) {
+        for (; b < 4; b++) {
+            u2[b] = 0;
+        }
+        p2[a] = kjg_geno_pack_unit(u2);
+    }
+
+    return (a);
+}
+
+size_t kjg_geno_repack4 (
+        const size_t n,
+        const uint8_t* mask,
+        const uint8_t* p1,
+        uint8_t* p2) {
+    size_t i = 0, j = 0, k = 0;
+    for (; i < n; (i += 4), j++)
+        if (!mask[j]) p2[k++] = p1[j];
+
+    return (k);
+}
+
 size_t kjg_geno_sum_alt (const size_t n, const uint8_t* p) {
     size_t i = 0, j = 0, a = 0;
 
