@@ -17,6 +17,7 @@
 
 #include "kjg_geno.h"
 #include "kjg_genoIO.h"
+#include "kjg_bedIO.h"
 #include "kjg_gsl.h"
 #include "kjg_util.h"
 #include "kjg_fpca.h"
@@ -25,18 +26,20 @@
 
 // options and arguments
 size_t I = 10;
-size_t L = 10;
-size_t K = 5;
+size_t L = 20;
+size_t K = 10;
+int B = 0;
 char *GENO_FILENAME, *OUTPUT_PREFIX;
 
 // argument parsing
 void parse_args (int argc, char **argv);
+void print_usage (const char *message);
+
 extern int opterr, optopt, optind;
 extern char *optarg;
 
 int timelog (const char* message);
 struct timespec t0;
-
 struct timespec elapsed ();
 
 int main (int argc, char **argv) {
@@ -46,17 +49,33 @@ int main (int argc, char **argv) {
     parse_args(argc, argv);
 
     // PREP - read genotype file into memory
-    kjg_genoIO *gp = kjg_genoIO_fopen(GENO_FILENAME, "r");
+    kjg_geno* X;
+    if (B) {
+        kjg_bedIO *bp = kjg_bedIO_bfile_fopen(GENO_FILENAME, "r");
+        if (!bp) print_usage("Unable to open bed/bim/fam");
 
-    sprintf(message, "Reading geno (%dx%d)", gp->m, gp->n);
-    timelog(message);
+        sprintf(message, "Reading geno (%dx%d)", bp->m, bp->n);
+        timelog(message);
 
-    kjg_geno* X = kjg_genoIO_fread_geno(gp);
-    kjg_genoIO_fclose(gp);
+        X = kjg_bedIO_fread_geno(bp);
+        kjg_bedIO_fclose(bp);
+    }
+    else {
+        kjg_genoIO *gp = kjg_genoIO_fopen(GENO_FILENAME, "r");
+        if (!gp) {
+            print_usage("Unable to open geno");
+        }
+
+        sprintf(message, "Reading geno (%dx%d)", gp->m, gp->n);
+        timelog(message);
+
+        X = kjg_genoIO_fread_geno(gp);
+        kjg_genoIO_fclose(gp);
+    }
 
     // calculate the SNP means
     timelog("Calculating SNP allele frequencies");
-    kjg_geno_set_norm(X);
+    kjg_geno_set_norm(X, 0);
 
     // run fast PCA
     gsl_vector* eval = gsl_vector_alloc(K);
@@ -78,7 +97,7 @@ void parse_args (int argc, char **argv) {
     int c;
 
     opterr = 1;
-    while ((c = getopt(argc, argv, "i:k:l:o:")) != -1) {
+    while ((c = getopt(argc, argv, "i:k:l:o:b")) != -1) {
         switch (c) {
         case 'i':
             I = atoi(optarg);
@@ -92,32 +111,39 @@ void parse_args (int argc, char **argv) {
         case 'o':
             OUTPUT_PREFIX = optarg;
             break;
+        case 'b':
+            B = 1;
+            break;
         default:
-            fprintf(stderr, "Unrecognized option '-%c'\n", optopt);
-            exit(1);
+            print_usage(0);
         }
     }
 
     if (optind == argc - 1) {
         GENO_FILENAME = argv[optind];
     }
-    else if (optind == argc) {
-        fprintf(stderr, "No input file specified\n");
-        exit(1);
-    }
-    else {
-        fprintf(stderr, "Too many arguments\n");
-        exit(1);
-    }
+    else if (optind == argc) print_usage("fastpca: No input file specified");
+    else print_usage("fastpca: Too many arguments");
 
-    if (K >= L) {
-        fprintf(stderr, "K >= L\n");
-        exit(1);
-    }
+    if (K >= L) print_usage("fastpca: K >= L");
 
     if (OUTPUT_PREFIX == NULL) {
         OUTPUT_PREFIX = GENO_FILENAME;
     }
+}
+
+void print_usage (const char *message) {
+    if (message) fprintf(stderr, "fastpca: %s\n", message);
+    fprintf(stderr,
+            "Usage: fastpca [-k <PCs>] [-l <width>] [-i <iterations>] [-o <output prefix>] [-b] <input>\n"
+                    "Options:\n"
+                    "  -k <PCs>             Number of PCs to compute (K). Default is 10.\n"
+                    "  -l <width>           Width of random matrix (L). L > K. Default is 20.\n"
+                    "  -i <iterations>      Number of iterations (I). Default is 10.\n"
+                    "  -o <output prefix>   Output prefix. Default is to use input.\n"
+                    "  -b                   Tells fastpca that we are using a bed file.\n"
+                    "  <input>              Input geno file or bed/bim/fam prefix with -b.\n");
+    exit(1);
 }
 
 int timelog (const char* message) {

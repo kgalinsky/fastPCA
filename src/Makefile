@@ -1,5 +1,5 @@
-CFLAGS = $(shell gsl-config --cflags) -I/home/Kevin/local/include
-LDLIBS = $(shell gsl-config --libs-without-cblas) -L/home/Kevin/local/lib -lopenblas -lgfortran -lrt
+CFLAGS = -o2 $(shell gsl-config --cflags)
+LDLIBS = $(shell gsl-config --libs-without-cblas) -lopenblas -lgfortran -lrt
 
 executables = pca fastpca evec2weights project_weights
 
@@ -20,9 +20,7 @@ clean:
 
 pca: kjg_geno.o kjg_genoIO.o kjg_util.o kjg_GRM.o kjg_gsl.o
 
-fastpca: kjg_geno.o kjg_genoIO.o kjg_gsl.o kjg_util.o kjg_fpca.o kjg_geno_gsl.o glue.o
-
-fastpca-bed: kjg_geno.o kjg_bedIO.o kjg_gsl.o kjg_util.o kjg_fpca.o kjg_geno_gsl.o glue.o
+fastpca: kjg_geno.o kjg_genoIO.o kjg_bedIO.o kjg_gsl.o kjg_util.o kjg_fpca.o kjg_geno_gsl.o glue.o
 
 evec2weights: kjg_geno.o kjg_gsl.o kjg_genoIO.o kjg_geno_gsl.o
 
