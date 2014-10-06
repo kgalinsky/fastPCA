@@ -30,6 +30,7 @@ size_t L = 20;
 size_t K = 10;
 int B = 0;
 char *GENO_FILENAME, *OUTPUT_PREFIX;
+char *SNP_MASK, *IND_MASK;
 
 // argument parsing
 void parse_args (int argc, char **argv);
@@ -41,6 +42,8 @@ extern char *optarg;
 int timelog (const char* message);
 struct timespec t0;
 struct timespec elapsed ();
+
+uint8_t *read_mask (size_t n, const char *filename);
 
 int main (int argc, char **argv) {
     clock_gettime(CLOCK_REALTIME, &t0);
@@ -54,11 +57,29 @@ int main (int argc, char **argv) {
         kjg_bedIO *bp = kjg_bedIO_bfile_fopen(GENO_FILENAME, "r");
         if (!bp) print_usage("Unable to open bed/bim/fam");
 
+        uint8_t* SNPmask = 0;
+        if (SNP_MASK) {
+            SNPmask = read_mask(bp->m, SNP_MASK);
+            if (!SNPmask) print_usage("Unable to read SNP mask");
+        }
+
+        uint8_t* indmask = 0;
+        if (IND_MASK) {
+            indmask = read_mask(bp->m, IND_MASK);
+            if (!indmask) print_usage("Unable to read individual mask");
+        }
+
         sprintf(message, "Reading geno (%dx%d)", bp->m, bp->n);
         timelog(message);
 
-        X = kjg_bedIO_fread_geno(bp);
+        X = kjg_bedIO_fread_geno(bp, SNPmask, indmask);
         kjg_bedIO_fclose(bp);
+
+        if (SNPmask) free(SNPmask);
+        if (indmask) free(indmask);
+
+        sprintf(message, "Finished reading geno (%dx%d)\n", X->m, X->n);
+        timelog(message);
     }
     else {
         kjg_genoIO *gp = kjg_genoIO_fopen(GENO_FILENAME, "r");
@@ -97,7 +118,7 @@ void parse_args (int argc, char **argv) {
     int c;
 
     opterr = 1;
-    while ((c = getopt(argc, argv, "i:k:l:o:b")) != -1) {
+    while ((c = getopt(argc, argv, "i:k:l:o:bm:n:")) != -1) {
         switch (c) {
         case 'i':
             I = atoi(optarg);
@@ -113,6 +134,12 @@ void parse_args (int argc, char **argv) {
             break;
         case 'b':
             B = 1;
+            break;
+        case 'm':
+            SNP_MASK = optarg;
+            break;
+        case 'n':
+            IND_MASK = optarg;
             break;
         default:
             print_usage(0);
@@ -135,13 +162,15 @@ void parse_args (int argc, char **argv) {
 void print_usage (const char *message) {
     if (message) fprintf(stderr, "fastpca: %s\n", message);
     fprintf(stderr,
-            "Usage: fastpca [-k <PCs>] [-l <width>] [-i <iterations>] [-o <output prefix>] [-b] <input>\n"
+            "Usage: fastpca [options] <input>\n"
                     "Options:\n"
                     "  -k <PCs>             Number of PCs to compute (K). Default is 10.\n"
                     "  -l <width>           Width of random matrix (L). L > K. Default is 20.\n"
                     "  -i <iterations>      Number of iterations (I). Default is 10.\n"
                     "  -o <output prefix>   Output prefix. Default is to use input.\n"
                     "  -b                   Tells fastpca that we are using a bed file.\n"
+                    "  -m <SNP mask>        File with SNP masking (1 means don't use).\n"
+                    "  -n <ind mask>        File with individual masking (1 means don't use).\n"
                     "  <input>              Input geno file or bed/bim/fam prefix with -b.\n");
     exit(1);
 }
@@ -161,3 +190,21 @@ struct timespec elapsed () {
     ts.tv_sec -= t0.tv_sec;
     return (ts);
 }
+
+uint8_t *read_mask (size_t n, const char *filename) {
+    FILE *fp = fopen(filename, "r");
+    if (!fp) return (NULL);
+
+    uint8_t *mask = calloc(n, 1);
+    size_t i;
+    for (i = 0; i < n; i++)
+        if (fscanf(fp, "%d", &mask[i]) == EOF) {
+            free(mask);
+            fclose(fp);
+            return (NULL);
+        }
+    fclose(fp);
+
+    return (mask);
+}
+
