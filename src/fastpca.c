@@ -135,20 +135,14 @@ void parse_args (int argc, char **argv) {
 void print_usage (const char *message) {
     if (message) fprintf(stderr, "fastpca: %s\n", message);
     fprintf(stderr,
-            "Usage: fastpca [-k <PCs>] [-l <width>] [-i <iterations>] [-o <output prefix>] [-b] <input>\n");
-    fprintf(stderr, "Options:\n");
-    fprintf(stderr,
-            "  -k <PCs>             Number of PCs to compute (K). Default is 10.\n");
-    fprintf(stderr,
-            "  -l <width>           Width of random matrix (L). L > K. Default is 20.\n");
-    fprintf(stderr,
-            "  -i <iterations>      Number of iterations (I). Default is 10.\n");
-    fprintf(stderr,
-            "  -o <output prefix>   Output prefix. Default is to use input.\n");
-    fprintf(stderr,
-            "  -b                   Tells fastpca that we are using a bed file.\n");
-    fprintf(stderr,
-            "  <input>              Input geno file or bed/bim/fam prefix with -b.\n");
+            "Usage: fastpca [-k <PCs>] [-l <width>] [-i <iterations>] [-o <output prefix>] [-b] <input>\n"
+                    "Options:\n"
+                    "  -k <PCs>             Number of PCs to compute (K). Default is 10.\n"
+                    "  -l <width>           Width of random matrix (L). L > K. Default is 20.\n"
+                    "  -i <iterations>      Number of iterations (I). Default is 10.\n"
+                    "  -o <output prefix>   Output prefix. Default is to use input.\n"
+                    "  -b                   Tells fastpca that we are using a bed file.\n"
+                    "  <input>              Input geno file or bed/bim/fam prefix with -b.\n");
     exit(1);
 }
 
