@@ -17,6 +17,7 @@
 
 #include "kjg_geno.h"
 #include "kjg_genoIO.h"
+#include "kjg_bedIO.h"
 #include "kjg_gsl.h"
 #include "kjg_util.h"
 #include "kjg_fpca.h"
@@ -25,8 +26,9 @@
 
 // options and arguments
 size_t I = 10;
-size_t L = 10;
-size_t K = 5;
+size_t L = 20;
+size_t K = 10;
+int B = 0;
 char *GENO_FILENAME, *OUTPUT_PREFIX;
 
 // argument parsing
@@ -46,17 +48,29 @@ int main (int argc, char **argv) {
     parse_args(argc, argv);
 
     // PREP - read genotype file into memory
-    kjg_genoIO *gp = kjg_genoIO_fopen(GENO_FILENAME, "r");
+    kjg_geno* X;
+    if (B) {
+        kjg_bedIO *bp = kjg_bedIO_bfile_fopen(GENO_FILENAME, "r");
 
-    sprintf(message, "Reading geno (%dx%d)", gp->m, gp->n);
-    timelog(message);
+        sprintf(message, "Reading geno (%dx%d)", bp->m, bp->n);
+        timelog(message);
 
-    kjg_geno* X = kjg_genoIO_fread_geno(gp);
-    kjg_genoIO_fclose(gp);
+        X = kjg_bedIO_fread_geno(bp);
+        kjg_bedIO_fclose(bp);
+    }
+    else {
+        kjg_genoIO *gp = kjg_genoIO_fopen(GENO_FILENAME, "r");
+
+        sprintf(message, "Reading geno (%dx%d)", gp->m, gp->n);
+        timelog(message);
+
+        X = kjg_genoIO_fread_geno(gp);
+        kjg_genoIO_fclose(gp);
+    }
 
     // calculate the SNP means
     timelog("Calculating SNP allele frequencies");
-    kjg_geno_set_norm(X);
+    kjg_geno_set_norm(X, 0);
 
     // run fast PCA
     gsl_vector* eval = gsl_vector_alloc(K);
@@ -78,7 +92,7 @@ void parse_args (int argc, char **argv) {
     int c;
 
     opterr = 1;
-    while ((c = getopt(argc, argv, "i:k:l:o:")) != -1) {
+    while ((c = getopt(argc, argv, "i:k:l:o:b")) != -1) {
         switch (c) {
         case 'i':
             I = atoi(optarg);
@@ -91,6 +105,9 @@ void parse_args (int argc, char **argv) {
             break;
         case 'o':
             OUTPUT_PREFIX = optarg;
+            break;
+        case 'b':
+            B = 1;
             break;
         default:
             fprintf(stderr, "Unrecognized option '-%c'\n", optopt);
