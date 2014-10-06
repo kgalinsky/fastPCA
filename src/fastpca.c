@@ -90,6 +90,7 @@ int main (int argc, char **argv) {
 
 void parse_args (int argc, char **argv) {
     int c;
+    int err = 0;
 
     opterr = 1;
     while ((c = getopt(argc, argv, "i:k:l:o:b")) != -1) {
@@ -111,7 +112,7 @@ void parse_args (int argc, char **argv) {
             break;
         default:
             fprintf(stderr, "Unrecognized option '-%c'\n", optopt);
-            exit(1);
+            err = 1;
         }
     }
 
@@ -120,20 +121,32 @@ void parse_args (int argc, char **argv) {
     }
     else if (optind == argc) {
         fprintf(stderr, "No input file specified\n");
-        exit(1);
+        err = 1;
     }
     else {
         fprintf(stderr, "Too many arguments\n");
-        exit(1);
+        err = 1;
     }
 
     if (K >= L) {
         fprintf(stderr, "K >= L\n");
-        exit(1);
+        err = 1;
     }
 
     if (OUTPUT_PREFIX == NULL) {
         OUTPUT_PREFIX = GENO_FILENAME;
+    }
+
+    if (err) {
+        fprintf(stderr, "Usage: fastpca [-k <PCs>] [-l <width>] [-i <iterations>] [-o <output prefix>] [-b] <input>\n");
+        fprintf(stderr, "Options:\n");
+        fprintf(stderr, "  -k <PCs>             Number of PCs to compute (K). Default is 10.\n");
+        fprintf(stderr, "  -l <width>           Width of random matrix (L). L > K. Default is 20.\n");
+        fprintf(stderr, "  -i <iterations>      Number of iterations (I). Default is 10.\n");
+        fprintf(stderr, "  -o <output prefix>   Output prefix. Default is to use input.\n");
+        fprintf(stderr, "  -b                   Tells fastpca that we are using a bed file.\n");
+        fprintf(stderr, "  <input>              Input geno file or bed/bim/fam prefix with -b.\n");
+        exit(1);
     }
 }
 
