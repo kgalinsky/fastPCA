@@ -1,5 +1,5 @@
-CFLAGS = -o2 $(shell gsl-config --cflags) -I/home/Kevin/local/include
-LDLIBS = $(shell gsl-config --libs-without-cblas) -L/home/Kevin/local/lib -lopenblas -lgfortran -lrt
+CFLAGS = -o2 $(shell gsl-config --cflags)
+LDLIBS = $(shell gsl-config --libs-without-cblas) -lopenblas -lgfortran -lrt
 
 executables = pca fastpca evec2weights project_weights
 
