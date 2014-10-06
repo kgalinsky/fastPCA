@@ -8,6 +8,7 @@
 typedef struct {
     const size_t m;   // number of SNPs
     const size_t n;   // number of samples
+    const size_t tda;
     FILE* stream;
 } kjg_bedIO;
 
@@ -26,7 +27,7 @@ kjg_bedIO* kjg_bedIO_fopen (
         const size_t m,
         const size_t n);
 
-kjg_bedIO* kjg_bedIO_bfile_fopen ( const char* path, const char* mode );
+kjg_bedIO* kjg_bedIO_bfile_fopen (const char* path, const char* mode);
 
 /**
  * Closes a bed file
@@ -35,6 +36,9 @@ kjg_bedIO* kjg_bedIO_bfile_fopen ( const char* path, const char* mode );
 
 int kjg_bedIO_fclose (kjg_bedIO* bp);
 
-kjg_geno* kjg_bedIO_fread_geno (kjg_bedIO* bp);
+kjg_geno* kjg_bedIO_fread_geno (
+        kjg_bedIO* bp,
+        const uint8_t* SNPmask,
+        const uint8_t* indmask);
 
 #endif /* KJG_BEDIO_H_ */

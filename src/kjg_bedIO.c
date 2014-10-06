@@ -14,7 +14,7 @@ kjg_bedIO* kjg_bedIO_fopen (
     FILE* stream = fopen(path, mode);
     if (stream == NULL) return (NULL);
 
-    kjg_bedIO pre = { m, n, stream };
+    kjg_bedIO pre = { m, n, ((n - 1) / 4 + 1), stream };
     kjg_bedIO* bp = malloc(sizeof(kjg_bedIO));
     memcpy(bp, &pre, sizeof(kjg_bedIO));
 
@@ -65,8 +65,45 @@ int kjg_bedIO_fclose (kjg_bedIO* bp) {
     return (r);
 }
 
-kjg_geno* kjg_bedIO_fread_geno (kjg_bedIO* bp) {
-    kjg_geno* g = kjg_geno_alloc(bp->m, bp->n);
-    fread(g->data, 1, g->tda * g->m, bp->stream);
+kjg_geno* kjg_bedIO_fread_geno (
+        kjg_bedIO* bp,
+        const uint8_t* SNPmask,
+        const uint8_t* indmask) {
+    if ((!SNPmask) && (!indmask)) {
+        kjg_geno* g = kjg_geno_alloc(bp->m, bp->n);
+        fread(g->data, 1, g->tda * g->m, bp->stream);
+        return (g);
+    }
+
+    size_t m = bp->m, n = bp->n;
+    size_t i;
+
+    if (SNPmask) for (i = 0; i < bp->m; i++)
+        m -= SNPmask[i];
+
+    if (indmask) for (i = 0; i < bp->n; i++)
+        n -= indmask[i];
+
+    kjg_geno* g = kjg_geno_alloc(m, n);
+
+    uint8_t *data = g->data;
+    if (indmask) {
+        uint8_t *buffer = malloc(bp->tda);
+        for (i = 0; i < m; i++) {
+            if (SNPmask && SNPmask[i]) fseek(bp->stream, bp->tda, SEEK_CUR);
+            fread(buffer, 1, bp->tda, bp->stream);
+            kjg_geno_repack(bp->n, indmask, buffer, data);
+            data += g->tda;
+        }
+        free(buffer);
+    }
+    else {
+        for (i = 0; i < m; i++) {
+            if (SNPmask[i]) fseek(bp->stream, bp->tda, SEEK_CUR);
+            fread(data, 1, bp->tda, bp->stream);
+            data += g->tda;
+
+        }
+    }
     return (g);
 }
