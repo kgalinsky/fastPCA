@@ -78,7 +78,7 @@ int main (int argc, char **argv) {
         if (SNPmask) free(SNPmask);
         if (indmask) free(indmask);
 
-        sprintf(message, "Finished reading geno (%dx%d)\n", X->m, X->n);
+        sprintf(message, "Finished reading geno (%dx%d)", X->m, X->n);
         timelog(message);
     }
     else {
