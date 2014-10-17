@@ -5,10 +5,11 @@ read.geno <- function (filename) {
 }
 
 scale.geno <- function (X) {
-   <- rowMeans(X, na.rm = TRUE)
-  P <-  / 2
+  M <- rowMeans(X, na.rm = TRUE)
+  P <- M / 2
   S <- sqrt(2*P*(1-P))
-  return((X-)/S)
+  Y <- (X-M)/S
+  return(Y[S!=0,])
 }
 
 rnorm.matrix <- function (m, n, ...) {

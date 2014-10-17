@@ -30,7 +30,7 @@ sub calc_F {
         $struct->[0] = $F;
 
         foreach my $substruct (@$struct[1..$#$struct]) {
-	    calc_F($substruct);
+            calc_F($substruct);
         }
     }
 }

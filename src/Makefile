@@ -5,12 +5,12 @@ executables = pca fastpca evec2weights project_weights
 
 .PHONY: all debug clean
 
+all: $(executables)
+
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
 	CFLAGS += -g
 endif
-
-all: $(executables)
 
 debug: CFLAGS += -g
 debug: all
@@ -22,7 +22,7 @@ pca: kjg_geno.o kjg_genoIO.o kjg_util.o kjg_GRM.o kjg_gsl.o
 
 fastpca: kjg_geno.o kjg_genoIO.o kjg_bedIO.o kjg_gsl.o kjg_util.o kjg_fpca.o kjg_geno_gsl.o glue.o
 
-evec2weights: kjg_geno.o kjg_gsl.o kjg_genoIO.o kjg_geno_gsl.o
+evec2weights: kjg_geno.o kjg_gsl.o kjg_genoIO.o kjg_geno_gsl.o glue.o
 
 evec2weights-bed: kjg_geno.o kjg_gsl.o kjg_bedIO.o kjg_geno_gsl.o
 

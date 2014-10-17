@@ -19,7 +19,6 @@ void main (int argc, char **argv) {
     // Allocate file handles
     FILE *fh_evec = fopen(argv[1], "r");
     kjg_genoIO *gp = kjg_genoIO_fopen(argv[2], "r");
-    FILE *fh_weight = fopen(argv[3], "w");
 
     // Get dimensions of evec file
     size_t k = 1;
@@ -36,15 +35,12 @@ void main (int argc, char **argv) {
         fseek(fh_evec, 0, SEEK_SET);
     }
 
-    // only reading 1024 lines at a time
-    size_t i, m = 1024, mr;
-
     // allocate vectors
     gsl_vector *eval = gsl_vector_alloc(k);
     gsl_matrix *evec = gsl_matrix_alloc(gp->n, k);
-    gsl_matrix *weights = gsl_matrix_alloc(m, k);
+    gsl_matrix *weights = gsl_matrix_alloc(gp->m, k);
 
-    // ead evec
+    // read evec
     printf("Reading evec (%dx%d)\n", gp->n, k);
     int r = kjg_gsl_evec_fscanf(fh_evec, eval, evec);
     if (r) {
@@ -53,53 +49,31 @@ void main (int argc, char **argv) {
     }
     fclose(fh_evec);
 
-    // print eval
-    fprintf(fh_weight, "#");
-    fprintf(fh_weight, "%g", gsl_vector_get(eval, 0));
-    for (i = 1; i < eval->size; i++) {
-        fprintf(fh_weight, "\t");
-        fprintf(fh_weight, "%g", gsl_vector_get(eval, i));
-    }
+    printf("Reading geno (%dx%d)\n", gp->m, gp->n);
+    kjg_geno* X = kjg_genoIO_fread_geno(gp);
+    kjg_genoIO_fclose(gp);
 
-    // calculate scale
-    double *scale = malloc(sizeof(double) * eval->size);
-    for (i = 0; i < k; i++) {
-        scale[i] = 1.0 / sqrt(gp->m * gsl_vector_get(eval, i));
-    }
+    kjg_geno_set_norm(X, 0);
 
-    gsl_vector_free(eval);
-
-    // do it in chunks
-    kjg_geno* X = kjg_geno_alloc(1024, gp->n);
-    double *M = malloc(sizeof(double) * X->m);
-
-    size_t chunk = 0;
-    while (1) {
-        if (! (chunk++ % 1000) ) fprintf(stderr, "Chunk %d\n", chunk);
-
-        mr = kjg_genoIO_fread_chunk(gp, X);
-        kjg_geno_row_means(X, M);
-
-        kjg_fpca_XA(X, M, evec, weights);
-
-        for (i = 0; i < k; i++) {
-            gsl_vector_view V = gsl_matrix_column(weights, i);
-            gsl_vector_scale(&V.vector, scale[i]);
-        }
-
-        if (mr == m) {
-            kjg_gsl_matrix_fprintf(fh_weight, weights, "%g");
-        }
-        else {
-            gsl_matrix_view weight_view = gsl_matrix_submatrix(weights, 0, 0,
-                    mr, weights->size2);
-            kjg_gsl_matrix_fprintf(fh_weight, &weight_view.matrix, "%g");
-            break;
-        }
-    }
+    printf("Computing weights (%dx%d)\n", X->m, k);
+    kjg_geno_gsl_XA(X, evec, weights);
 
     kjg_geno_free(X);
-    free(M);
+
+    printf("Scaling weights\n");
+    {
+        size_t i;
+        for (i = 0; i < k; i++) {
+            gsl_vector_view V = gsl_matrix_column(weights, i);
+            gsl_vector_scale(&V.vector, 1.0 / gsl_vector_get(eval, i));
+        }
+    }
+
+    printf("Printing weights\n");
+    FILE *fh_weight = fopen(argv[3], "w");
+    kjg_gsl_evec_fprintf(fh_weight, eval, weights, "%g");
+
+    gsl_vector_free(eval);
     gsl_matrix_free(evec);
     gsl_matrix_free(weights);
 }

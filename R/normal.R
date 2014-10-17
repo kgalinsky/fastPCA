@@ -8,7 +8,7 @@ plot.traces <- function (X, X.svd, K, Ls, I, R=5) {
   
   plot(c(),
        xlim=c(0, I), xlab='I',
-       ylim=c(0, 1), ylab='FOM'
+       ylim=c(0, 1), ylab='FO'
   )
   abline(h=.99, lty=2)
   abline(h=.95, lty=3)
@@ -22,19 +22,19 @@ plot.traces <- function (X, X.svd, K, Ls, I, R=5) {
     L <- Ls[l]
     for (r in 1:R) {
       Ts.svd <- fastPCA.blanczos.iterate(X, i=I, l=L, k=K)
-      Ts.FOM <- sapply(Ts.svd, function (T.svd) { FOM.KG(X.svd, T.svd) })
-      lines(is, Ts.FOM, col=pal[l])      
+      Ts.FO <- sapply(Ts.svd, function (T.svd) { FOM.KG(X.svd, T.svd) })
+      lines(is, Ts.FO, col=pal[l])      
     }
   }
 }
 
 lines.trace <- function(A, col='red', ...) {
   Ts.svd <- fastPCA.blanczos.iterate(X, ...)
-  Ts.FOM <- sapply(Ts.svd, function (T.svd) { FOM.KG(X.svd, T.svd) })
-  lines(is, Ts.FOM, col=col) 
+  Ts.FO <- sapply(Ts.svd, function (T.svd) { FOM.KG(X.svd, T.svd) })
+  lines(is, Ts.FO, col=col) 
 }
 
-#X <- rpop(M, N)
+#X <- rpop(, N)
 X.10k.1k <- rnorm.matrix(1000, 10000)
 X.10k.1k.svd <- svd(X)
 
