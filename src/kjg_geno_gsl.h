@@ -38,6 +38,6 @@ kjg_geno_gsl_XA (const kjg_geno *X, const gsl_matrix *A, gsl_matrix *B);
  */
 
 void
-kjg_geno_gsl_XTB (const kjg_geno *X, const gsl_matrix *A, gsl_matrix *B);
+kjg_geno_gsl_XTA (const kjg_geno *X, const gsl_matrix *A, gsl_matrix *B);
 
 #endif /* KJG_GENO_GSL_H_ */

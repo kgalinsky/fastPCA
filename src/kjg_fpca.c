@@ -38,7 +38,7 @@ kjg_fpca (const kjg_geno* X, gsl_vector* eval, gsl_matrix* evec, size_t L,
 
   // PART B - compute B matrix, take SVD and return
   gsl_matrix* B = gsl_matrix_alloc (X->n, (I + 1) * L);
-  kjg_geno_gsl_XTB (X, Q, B);
+  kjg_geno_gsl_XTA (X, Q, B);
 
   gsl_vector* Sl = gsl_vector_alloc (B->size2);
   gsl_matrix* Vl = B;

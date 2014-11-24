@@ -70,7 +70,7 @@ main (int argc, char **argv)
 
   gsl_matrix *evec = gsl_matrix_alloc (Y->n, k);
   printf ("Computing evec (%dx%d)\n", Y->m, k);
-  kjg_geno_gsl_XTB (Y, weights, evec);
+  kjg_geno_gsl_XTA (Y, weights, evec);
   gsl_matrix_free (weights);
 
   printf ("Scaling evec\n");

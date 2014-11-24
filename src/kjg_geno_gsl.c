@@ -62,7 +62,7 @@ kjg_geno_gsl_XA (const kjg_geno *X, const gsl_matrix *A, gsl_matrix *B)
 }
 
 void
-kjg_geno_gsl_XTB (const kjg_geno *X, const gsl_matrix *A, gsl_matrix *B)
+kjg_geno_gsl_XTA (const kjg_geno *X, const gsl_matrix *A, gsl_matrix *B)
 {
   size_t i, r;
   gsl_matrix* Y = gsl_matrix_alloc (KJG_GENO_GSL_ROWS, X->n);
