@@ -1,6 +1,10 @@
 #ifndef KJG_GENO_GSL_H_
 #define KJG_GENO_GSL_H_
 
+#include <gsl/gsl_matrix.h>
+
+#include "kjg_geno.h"
+
 /**
  * Multiplies B=X*A1 and A2 = XT*B = XT*X*A1
  * @param X compressed genotype matrix

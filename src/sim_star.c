@@ -7,6 +7,7 @@
 #include <gsl/gsl_randist.h>
 
 #include "kjg_geno.h"
+#include "kjg_geno_rand.h"
 
 void
 parse_args (int argc, char** argv);
@@ -16,21 +17,21 @@ write_bim (char* prefix, size_t m);
 void
 write_fam (char* prefix, size_t n, size_t p);
 void
-write_bed (char* prefix, size_t m, size_t n, size_t p, double FST, double *MAF);
+write_bed (char* prefix, size_t M, size_t N, size_t P, double FST, double *MAF);
 
-size_t M = 10000, N = 1000, P = 2;
-double FST = 0.01, MAF[2] =
+size_t opt_M = 10000, opt_N = 1000, opt_P = 2;
+double opt_FST = 0.01, opt_MAF[2] =
   { 0.05, 0.5 };
-char* PFX = NULL;
+char* opt_PFX = NULL;
 
 void
 main (int argc, char** argv)
 {
   parse_args (argc, argv);
 
-  write_bim (PFX, M);
-  write_fam (PFX, N, P);
-  write_bed (PFX, M, N, P, FST, MAF);
+  write_bim (opt_PFX, opt_M);
+  write_fam (opt_PFX, opt_N, opt_P);
+  write_bed (opt_PFX, opt_M, opt_N, opt_P, opt_FST, opt_MAF);
 }
 
 void
@@ -62,34 +63,35 @@ parse_args (int argc, char** argv)
           // SNPs
         case 'm':
           errno = 0;
-          M = strtoul (optarg, 0, 0);
+          opt_M = strtoul (optarg, 0, 0);
           break;
 
           // Samples
         case 'n':
-          sscanf (optarg, "%ux%u", &N, &P);
-          if (P == 0)
-            P = 1;
+          sscanf (optarg, "%ux%u", &opt_N, &opt_P);
+          if (opt_P == 0)
+            opt_P = 1;
           break;
 
           //FST
         case 'f':
-          FST = strtof(optarg, 0, 0);
+          opt_FST = strtof (optarg, 0);
           break;
 
           //MAF
         case 'a':
-          sscanf (optarg, "%g-%g", &MAF[0], &MAF[1]);
-          if ((MAF[0] < 0) || (MAF[0] > MAF[1]) || (MAF[1] > 0.5))
+          sscanf (optarg, "%g-%g", &opt_MAF[0], &opt_MAF[1]);
+          if ((opt_MAF[0] < 0) || (opt_MAF[0] > opt_MAF[1])
+              || (opt_MAF[1] > 0.5))
             {
-              fprintf (stderr, "MAF bad: %g-%g\n", MAF[0], MAF[1]);
+              fprintf (stderr, "MAF bad: %g-%g\n", opt_MAF[0], opt_MAF[1]);
               help_flag = 1;
             }
           break;
 
           //PREFIX
         case 'p':
-          asprintf (&PFX, "%s", optarg);
+          asprintf (&opt_PFX, "%s", optarg);
           break;
 
         case '?':
@@ -120,8 +122,9 @@ parse_args (int argc, char** argv)
       exit (1);
     }
 
-  if (PFX == NULL)
-    asprintf (&PFX, "star.%dx%dx%d_%g_%g-%g", M, N, P, FST, MAF[0], MAF[1]);
+  if (opt_PFX == NULL)
+    asprintf (&opt_PFX, "star.%dx%dx%d_%g_%g-%g", opt_M, opt_N, opt_P, opt_FST,
+              opt_MAF[0], opt_MAF[1]);
 }
 
 void
@@ -156,7 +159,7 @@ write_fam (char* prefix, size_t n, size_t p)
 }
 
 void
-write_bed (char* prefix, size_t m, size_t n, size_t p, double FST, double *MAF)
+write_bed (char* prefix, size_t M, size_t N, size_t P, double FST, double *MAF)
 {
   char* filename = malloc (strlen (prefix) + 5);
   sprintf (filename, "%s.bed", prefix);
@@ -174,39 +177,24 @@ write_bed (char* prefix, size_t m, size_t n, size_t p, double FST, double *MAF)
 
   double F = (1 - FST) / FST;
 
-  size_t i, j, k, l;
-  for (i = 0; i < m; i++)
+  size_t n = P * N;
+  size_t tda = (n + 3) / 4;
+  double* AF = malloc (P * sizeof(double));
+  uint8_t* x = malloc (n * sizeof(uint8_t));
+  uint8_t* p = malloc (tda * sizeof(uint8_t));
+
+  size_t m, j, k, l;
+  for (m = 0; m < M; m++)
     {
-      double anc = gsl_ran_flat (r, MAF[0], MAF[1]);
-      if (gsl_ran_bernoulli (r, 0.5))
-        anc = 1 - anc;
-
-      double a = anc * F;
-      double b = (1 - anc) * F;
-
-      for (j = 0; j < p; j++)
-        {
-          double pop = gsl_ran_beta (r, a, b);
-
-          // quicker than calling gsl_ran_binomial a million times
-          double cut1 = pop * pop;
-          double cut2 = 1 - (1 - pop) * (1 - pop);
-
-          uint8_t gen[4];
-          uint8_t g;
-
-          for (k = 0; k < n; k += 4)
-            {
-              for (l = 0; l < 4; l++)
-                {
-                  double ind = gsl_rng_uniform (r);
-                  gen[l] = ind < cut1 ? 0 : ind < cut2 ? 2 : 3;
-                }
-              g = kjg_geno_pack_unit (gen);
-              fwrite (&g, 1, 1, fp);
-            }
-        }
+      double anc = kjg_geno_rand_anc (r, MAF);
+      kjg_geno_rand_star_AF (r, AF, anc, F, P);
+      kjg_geno_rand_row (r, x, N, P, AF);
+      kjg_geno_pack (n, x, p);
+      fwrite (p, 1, tda, fp);
     }
+
+  free (AF);
+  free (x);
 
   fclose (fp);
 }

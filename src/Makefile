@@ -28,4 +28,4 @@ evec2weights-bed: kjg_geno.o kjg_gsl.o kjg_bedIO.o kjg_geno_gsl.o
 
 project_weights: kjg_gsl.o kjg_geno.o kjg_genoIO.o kjg_fpca.o
 
-sim_star: kjg_geno.o
+sim_star: kjg_geno.o kjg_geno_rand.o
