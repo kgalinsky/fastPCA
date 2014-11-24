@@ -75,9 +75,8 @@ kjg_geno_rand_row (gsl_rng* r, uint8_t* x, const size_t N, const size_t P,
 }
 
 void
-kjg_geno_rand_ld_row (gsl_rng* r, uint8_t* x, const uint8_t *y,
-                      const double cor, const size_t N, const size_t P,
-                      const double* AF)
+kjg_geno_rand_ld_row (gsl_rng* r, uint8_t* x, const size_t N, const size_t P,
+                      const double* AF, const uint8_t *y, const double* cor)
 {
   size_t p, n, i = 0;
   for (p = 0; p < P; p++)
@@ -87,7 +86,7 @@ kjg_geno_rand_ld_row (gsl_rng* r, uint8_t* x, const uint8_t *y,
       for (n = 0; n < N; n++)
         {
           double u = gsl_rng_uniform (r);
-          if (u < cor)
+          if (u < cor[p])
             x[i] = y[i++];
           else
             {
