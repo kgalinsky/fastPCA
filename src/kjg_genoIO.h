@@ -15,10 +15,11 @@
 
 // Struct for reading geno files
 
-typedef struct {
-    const size_t m;   // number of SNPs
-    const size_t n;   // number of samples
-    FILE* stream;
+typedef struct
+{
+  const size_t m;   // number of SNPs
+  const size_t n;   // number of samples
+  FILE* stream;
 } kjg_genoIO;
 
 /**
@@ -28,14 +29,16 @@ typedef struct {
  * @return pointer to kjg_genoIO struct
  */
 
-kjg_genoIO* kjg_genoIO_fopen (const char* path, const char* mode);
+kjg_genoIO*
+kjg_genoIO_fopen (const char* path, const char* mode);
 
 /**
  * Closes a geno file
  * @param *gp pointer to kjg_genoIO struct
  */
 
-int kjg_genoIO_fclose (kjg_genoIO* gp);
+int
+kjg_genoIO_fclose (kjg_genoIO* gp);
 
 /**
  * Read geno file into struct
@@ -44,9 +47,11 @@ int kjg_genoIO_fclose (kjg_genoIO* gp);
  * @return point to kjg_geno struct with data
  */
 
-kjg_geno* kjg_genoIO_fread_geno (kjg_genoIO* gp);
+kjg_geno*
+kjg_genoIO_fread_geno (kjg_genoIO* gp);
 
-size_t kjg_genoIO_fread_chunk (kjg_genoIO* gp, kjg_geno* g);
+size_t
+kjg_genoIO_fread_chunk (kjg_genoIO* gp, kjg_geno* g);
 
 /**
  * Determine the number of individuals in a geno file.
@@ -55,7 +60,8 @@ size_t kjg_genoIO_fread_chunk (kjg_genoIO* gp, kjg_geno* g);
  * @return number of individuals
  */
 
-size_t kjg_genoIO_num_ind (FILE* stream);
+size_t
+kjg_genoIO_num_ind (FILE* stream);
 
 /**
  * Determine the number of SNPs in a geno file.
@@ -65,7 +71,8 @@ size_t kjg_genoIO_num_ind (FILE* stream);
  * @return number of SNPs
  */
 
-size_t kjg_genoIO_num_snp (FILE* stream, size_t n);
+size_t
+kjg_genoIO_num_snp (FILE* stream, size_t n);
 
 /**
  * Convert a character buffer to geno.
@@ -75,6 +82,7 @@ size_t kjg_genoIO_num_snp (FILE* stream, size_t n);
  * @param n number of individuals
  */
 
-void kjg_genoIO_char2int (const char* buffer, uint8_t* x, const size_t n);
+void
+kjg_genoIO_char2int (const char* buffer, uint8_t* x, const size_t n);
 
 #endif /* KJG_GENOIO_H_ */

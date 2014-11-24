@@ -12,9 +12,10 @@
 
 #include "kjg_geno.h"
 
-typedef struct {
-    const size_t n;
-    double* data;
+typedef struct
+{
+  const size_t n;
+  double* data;
 } kjg_GRM;
 
 /**
@@ -22,21 +23,23 @@ typedef struct {
  * @param n number of subjects
  * @return array
  */
-kjg_GRM* kjg_GRM_alloc (size_t n);
+kjg_GRM*
+kjg_GRM_alloc (size_t n);
 
 /**
  * Frees the GRM
  * @param *GRM
  */
-void kjg_GRM_free (kjg_GRM* GRM);
+void
+kjg_GRM_free (kjg_GRM* GRM);
 
 /**
  * Calculates the GRM
  * @params *GRM
  * @params *g genotype matrix
- * @params M genotype means
  */
-void kjg_GRM_calc (kjg_GRM* GRM, const kjg_geno* g, const double* M);
+void
+kjg_GRM_calc (kjg_GRM* GRM, const kjg_geno* g);
 
 /**
  * Compute the GRM lookup array.
@@ -44,6 +47,7 @@ void kjg_GRM_calc (kjg_GRM* GRM, const kjg_geno* g, const double* M);
  * @param S[4][4] 4x4 array to store products of scaled genotypes
  * @return success (0) or zero-good genos (1)
  */
-void kjg_GRM_lookup (const double s[4], double S[4][4]);
+void
+kjg_GRM_lookup (const double s[4], double S[4][4]);
 
 #endif /* KJG_GRM_H_ */

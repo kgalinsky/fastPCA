@@ -47,8 +47,8 @@ kjg_geno_rand_anc (gsl_rng* r, const double* MAF)
 }
 
 void
-kjg_geno_rand_star_AF (gsl_rng* r, double* AF, const double anc,
-                       const double F, const size_t P)
+kjg_geno_rand_star_AF (gsl_rng* r, double* AF, const double anc, const double F,
+                       const size_t P)
 {
   double a = anc * F;
   double b = (1 - anc) * F;

@@ -22,12 +22,9 @@ extern size_t KJG_FPCA_ROWS; // number of rows to process at once
  * @param I iterations to do exponentiation
  */
 
-void kjg_fpca (
-        const kjg_geno* X,
-        gsl_vector* eval,
-        gsl_matrix* evec,
-        size_t L,
-        size_t I);
+void
+kjg_fpca (const kjg_geno* X, gsl_vector* eval, gsl_matrix* evec, size_t L,
+          size_t I);
 
 /**
  * Perform a blanczos subspace iteration combining Rokhlin 2009 and Halko 2011.
@@ -37,9 +34,7 @@ void kjg_fpca (
  * @return Q matrix
  */
 
-gsl_matrix* kjg_fpca_subspace_iteration_blanczos (
-        const kjg_geno* X,
-        size_t l,
-        size_t q);
+gsl_matrix*
+kjg_fpca_subspace_iteration_blanczos (const kjg_geno* X, size_t l, size_t q);
 
 #endif /* KJG_FPCA_H_ */

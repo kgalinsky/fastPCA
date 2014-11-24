@@ -14,11 +14,9 @@
  * @param *A2 next matrix
  */
 
-void kjg_geno_gsl_XTXA (
-        const kjg_geno *X,
-        const gsl_matrix *A,
-        gsl_matrix *B,
-        gsl_matrix *C);
+void
+kjg_geno_gsl_XTXA (const kjg_geno *X, const gsl_matrix *A, gsl_matrix *B,
+                   gsl_matrix *C);
 
 /**
  * Multiplies B = X*A
@@ -28,10 +26,8 @@ void kjg_geno_gsl_XTXA (
  * @param *B another matrix
  */
 
-void kjg_geno_gsl_XA (
-        const kjg_geno *X,
-        const gsl_matrix *A,
-        gsl_matrix *B);
+void
+kjg_geno_gsl_XA (const kjg_geno *X, const gsl_matrix *A, gsl_matrix *B);
 
 /**
  * Multiplies B = XT*A
@@ -41,9 +37,7 @@ void kjg_geno_gsl_XA (
  * @param *B another matrix
  */
 
-void kjg_geno_gsl_XTB (
-        const kjg_geno *X,
-        const gsl_matrix *A,
-        gsl_matrix *B);
+void
+kjg_geno_gsl_XTB (const kjg_geno *X, const gsl_matrix *A, gsl_matrix *B);
 
 #endif /* KJG_GENO_GSL_H_ */

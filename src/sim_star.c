@@ -8,6 +8,7 @@
 
 #include "kjg_geno.h"
 #include "kjg_geno_rand.h"
+#include "kjg_util.h"
 
 void
 parse_args (int argc, char** argv);
@@ -130,10 +131,7 @@ parse_args (int argc, char** argv)
 void
 write_bim (char* prefix, size_t m)
 {
-  char* filename = malloc (strlen (prefix) + 5);
-  sprintf (filename, "%s.bim", prefix);
-  FILE* fp = fopen (filename, "w");
-  free (filename);
+  FILE* fp = kjg_util_fopen_suffix (prefix, "bim", "w");
 
   size_t i;
   for (i = 1; i <= m; i++)
@@ -145,10 +143,7 @@ write_bim (char* prefix, size_t m)
 void
 write_fam (char* prefix, size_t n, size_t p)
 {
-  char* filename = malloc (strlen (prefix) + 5);
-  sprintf (filename, "%s.fam", prefix);
-  FILE* fp = fopen (filename, "w");
-  free (filename);
+  FILE* fp = kjg_util_fopen_suffix (prefix, "fam", "w");
 
   size_t i, j;
   for (i = 1; i <= p; i++)
@@ -161,10 +156,7 @@ write_fam (char* prefix, size_t n, size_t p)
 void
 write_bed (char* prefix, size_t M, size_t N, size_t P, double FST, double *MAF)
 {
-  char* filename = malloc (strlen (prefix) + 5);
-  sprintf (filename, "%s.bed", prefix);
-  FILE* fp = fopen (filename, "w");
-  free (filename);
+  FILE* fp = kjg_util_fopen_suffix (prefix, "bed", "w");
 
   char magic[3] =
     { 0x6c, 0x1b, 0x01 };

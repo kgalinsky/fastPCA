@@ -15,9 +15,11 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
 
-int glue_dgeqrf (gsl_matrix *m, gsl_vector *tau);
+int
+glue_dgeqrf (gsl_matrix *m, gsl_vector *tau);
 
-int glue_dorgqr (gsl_matrix *m, gsl_vector *tau);
+int
+glue_dorgqr (gsl_matrix *m, gsl_vector *tau);
 
 /**
  * SVD (A=USV'). s/u/vt/superb can all be NULL. u/vt require jobu/vt to be 'Z' or 'O'
@@ -31,14 +33,9 @@ int glue_dorgqr (gsl_matrix *m, gsl_vector *tau);
  * @return success/error code
  */
 
-int glue_dgesvd (
-        char jobu,
-        char jobvt,
-        gsl_matrix* a,
-        gsl_vector* s,
-        gsl_matrix* u,
-        gsl_matrix* vt,
-        gsl_vector* superb);
+int
+glue_dgesvd (char jobu, char jobvt, gsl_matrix* a, gsl_vector* s, gsl_matrix* u,
+             gsl_matrix* vt, gsl_vector* superb);
 
 /**
  * Faster SVD. s/u/vt can all be NULL. Unlike SVD, u/vt can always be NULL.
@@ -51,13 +48,11 @@ int glue_dgesvd (
  * @return success/error code
  */
 
-int glue_dgesdd (
-        char jobz,
-        gsl_matrix* a,
-        gsl_vector* s,
-        gsl_matrix* u,
-        gsl_matrix* vt);
+int
+glue_dgesdd (char jobz, gsl_matrix* a, gsl_vector* s, gsl_matrix* u,
+             gsl_matrix* vt);
 
-double glue_dlange (const char norm, const gsl_matrix* a);
+double
+glue_dlange (const char norm, const gsl_matrix* a);
 
 #endif /* GLUE_H_ */
