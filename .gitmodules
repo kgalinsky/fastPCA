@@ -1,0 +1,12 @@
+[submodule "glue"]
+	path = glue
+	url = git@github.com:kgalinsky/glue.git
+[submodule "kjg_geno"]
+	path = kjg_geno
+	url = git@github.com:kgalinsky/kjg_geno.git
+[submodule "src/glue"]
+	path = src/glue
+	url = git@github.com:kgalinsky/glue.git
+[submodule "src/kjg_geno"]
+	path = src/kjg_geno
+	url = git@github.com:kgalinsky/kjg_geno.git
